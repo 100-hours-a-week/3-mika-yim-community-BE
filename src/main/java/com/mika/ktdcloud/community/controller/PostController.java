@@ -5,6 +5,7 @@ import com.mika.ktdcloud.community.dto.post.request.PostUpdateRequest;
 import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
 import com.mika.ktdcloud.community.service.PostService;
+import com.mika.ktdcloud.community.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,18 +28,18 @@ public class PostController {
     // 게시글 생성
     @PostMapping
     public ResponseEntity<PostSimpleResponse> createPost(@RequestBody @Valid PostCreateRequest request) {
-        Long authorId = 1L; // 인증 추가 후에 현재 사용자 id 가져오기 추가해야 됨
+        // SecurityContextHolder에서 사용자 id 추출
+        Long authorId = SecurityUtil.getCurrentUserId();
         PostSimpleResponse response = postService.createPost(request, authorId);
         URI location = URI.create("/api/v1/posts/" + response.getId());
         return ResponseEntity.created(location).body(response);
     }
 
-    // 게시글 목록 조회
+    // 게시글 목록 조회 (무한 스크롤링)
     @GetMapping
     public ResponseEntity<Slice<PostSimpleResponse>> getPostList(
             @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostSimpleResponse> responseSlice = postService.getPostList(pageable);
-
         return ResponseEntity.ok(responseSlice);
     }
 
@@ -55,18 +56,15 @@ public class PostController {
             @PathVariable("id") Long postId,
             @RequestBody @Valid PostUpdateRequest request
     ) throws AccessDeniedException {
-        Long currentUserId = 1L; // 인증 추가 후에 현재 사용자 id 가져오기 추가해야 됨
-
+        Long currentUserId = SecurityUtil.getCurrentUserId();
         PostSimpleResponse response = postService.updatePost(request, postId, currentUserId);
-
         return ResponseEntity.ok(response);
     }
 
     // 게시글 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) throws AccessDeniedException {
-        Long currentUser = 1L;
-
+        Long currentUser = SecurityUtil.getCurrentUserId();
         postService.deletePost(id, currentUser);
         return ResponseEntity.noContent().build();
     }
@@ -76,9 +74,8 @@ public class PostController {
     public ResponseEntity<PostSimpleResponse> togglePostLike(
             @PathVariable Long postId
     ) {
-        Long currentUserId = 1L;
+        Long currentUserId = SecurityUtil.getCurrentUserId();
         PostSimpleResponse response = postService.togglePostLike(postId,currentUserId);
-
         return ResponseEntity.ok(response);
     }
 }

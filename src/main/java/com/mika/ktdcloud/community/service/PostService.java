@@ -28,7 +28,6 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class PostService {
 
     private final PostRepository postRepository;
@@ -48,24 +47,24 @@ public class PostService {
         return postMapper.toSimpleResponse(savedPost);
     }
 
-    // 게시글 목록 조회
+    // 게시글 목록 조회 (무한 스크롤링)
+    @Transactional(readOnly = true)
     public Slice<PostSimpleResponse> getPostList(Pageable pageable) {
         return postRepository.findPostsWithDetails(pageable);
     }
 
     //게시글 상세 조회
+    @Transactional(readOnly = true)
     public PostDetailResponse getDetailPost(Long id) {
         Post post = postRepository.findByIdWithImages(id).
                 orElseThrow(() -> new IllegalArgumentException("Post not found."));
 
         // 조회수 증가
-        // Transaction(락)을 너무 넓은 범위에 걸지 않도록 service를 분리
-        postViewService.increaseViewCount(id); // 현재는 readOnly이기 때문에, 새로운 Transaction이 필요
+        postViewService.increaseViewCount(id);
 
-        // 위 트랜잭션이 끝나 락이 해제된 후, 락 없이 읽기 작업만 수행
+        // 댓글 조회
         Pageable commentPageable = PageRequest.of(0,10, Sort.by("createdAt").ascending());
         Slice<Comment> commentSlice = commentRepository.findTopCommentsByPostId(id, commentPageable);
-
         Slice<CommentResponse> commentResponseSlice = commentSlice.map(commentMapper::toResponse);
 
         return postMapper.toDetailResponse(post, commentResponseSlice);
@@ -101,13 +100,14 @@ public class PostService {
     // 좋아요 토글
     @Transactional
     public PostSimpleResponse togglePostLike(Long postId, Long currentUserId) {
-        Post post = postRepository.findWithLockById(postId) // 동시성 문제를 위한 pessimistic lock(비관적 락, 배타적 잠금)
+        Post post = postRepository.findWithLockById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found."));
 
         User user = userRepository.getReferenceById(currentUserId);
 
         Optional<PostLike> existingLike = postLikeRepository.findByPostAndUser(post, user);
 
+        // 좋아요 테이블에 있으면 수정, 없으면 생성
         if(existingLike.isPresent()) {
             PostLike like = existingLike.get();
             if (like.getDeletedAt() == null) {

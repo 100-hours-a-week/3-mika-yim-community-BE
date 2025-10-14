@@ -1,4 +1,4 @@
-package com.mika.ktdcloud.community.dto.user.request;
+package com.mika.ktdcloud.community.dto.auth.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
