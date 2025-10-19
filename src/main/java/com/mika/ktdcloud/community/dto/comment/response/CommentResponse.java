@@ -12,6 +12,7 @@ public class CommentResponse {
     private final String content;
     private final Long postId;
     private final String authorNickname;
+    private final String authorProfileImageUrl;
     private boolean hasChildren; // 대댓글 여부
 
     private final LocalDateTime createdAt;
@@ -23,6 +24,7 @@ public class CommentResponse {
             String content,
             Long postId,
             String authorNickname,
+            String authorProfileImageUrl,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -30,6 +32,7 @@ public class CommentResponse {
         this.content = content;
         this.postId = postId;
         this.authorNickname = authorNickname;
+        this.authorProfileImageUrl = authorProfileImageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

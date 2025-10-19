@@ -12,6 +12,7 @@ public class PostSimpleResponse {
     private final String title;
     private final String thumbnailUrl;
     private final String authorNickname;
+    private final String authorProfileImageUrl;
 
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -26,6 +27,7 @@ public class PostSimpleResponse {
             String title,
             String thumbnailUrl,
             String authorNickname,
+            String authorProfileImageUrl,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             Integer viewCount,
@@ -36,6 +38,7 @@ public class PostSimpleResponse {
         this.title = title;
         this.thumbnailUrl = thumbnailUrl;
         this.authorNickname = authorNickname;
+        this.authorProfileImageUrl = authorProfileImageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.viewCount = viewCount;

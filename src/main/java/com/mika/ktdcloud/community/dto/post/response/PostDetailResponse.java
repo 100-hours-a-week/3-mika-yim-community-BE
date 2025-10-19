@@ -17,6 +17,7 @@ public class PostDetailResponse {
     private final String thumbnailUrl;
     private final List<String> imageUrls;
     private final String authorNickname;
+    private final String authorProfileImageUrl;
 
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -36,6 +37,7 @@ public class PostDetailResponse {
             String thumbnailUrl,
             List<String> imageUrls,
             String authorNickname,
+            String authorProfileImageUrl,
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             LocalDateTime deletedAt,
@@ -50,6 +52,7 @@ public class PostDetailResponse {
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrls = imageUrls;
         this.authorNickname = authorNickname;
+        this.authorProfileImageUrl = authorProfileImageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;

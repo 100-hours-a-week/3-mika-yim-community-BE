@@ -29,6 +29,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         post.title,
                         post.thumbnailUrl,
                         user.nickname,
+                        user.profileImageUrl,
                         post.createdAt,
                         post.updatedAt,
                         postStat.viewCount,

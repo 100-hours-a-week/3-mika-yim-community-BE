@@ -19,6 +19,7 @@ public class CommentMapper {
                 .content(comment.getContent())
                 .postId(comment.getPost().getId())
                 .authorNickname(comment.getAuthor().getNickname())
+                .authorProfileImageUrl(comment.getAuthor().getProfileImageUrl())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();
