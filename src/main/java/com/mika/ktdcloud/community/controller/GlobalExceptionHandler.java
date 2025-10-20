@@ -35,7 +35,6 @@ public class GlobalExceptionHandler {
         StringBuilder sb = new StringBuilder();
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
             sb.append(fieldError.getField()).append(": ").append(fieldError.getDefaultMessage());
-            sb.append(". ");
         }
         ErrorResponse response = new ErrorResponse(sb.toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
