@@ -45,7 +45,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/users/signup",
                                 "/api/v1/auth/login",
-                                "/images/**"
+                                "/terms/**",
+                                "/images/**",
+                                "/css/**",
+                                "/js/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/posts",
