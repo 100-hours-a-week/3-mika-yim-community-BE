@@ -50,10 +50,6 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/posts",
-                                "/api/v1/posts/{id}"
-                        ).permitAll()
                         .anyRequest().authenticated()) // 그 외의 모든 요청은 반드시 인증을 거쳐야 함
                 // 직접 만든 Jwt 인증 필터를 원래 필터 전에 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
