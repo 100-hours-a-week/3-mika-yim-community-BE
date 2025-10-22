@@ -75,7 +75,7 @@ public class AuthService {
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
 
-    // 로그 아웃
+    // 로그아웃
     @Transactional
     public void logout(TokenReissueRequest request) {
         String requestRefreshToken = request.getRefreshToken();

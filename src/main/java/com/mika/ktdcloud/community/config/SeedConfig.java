@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.IntStream;
@@ -21,6 +22,7 @@ public class SeedConfig {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     ApplicationRunner seedRunner() {
@@ -32,7 +34,8 @@ public class SeedConfig {
         if (userRepository.count() >= 10 && postRepository.count() >= 10) return;
 
         IntStream.rangeClosed(1, 100).forEach(i -> {
-            User user = User.create("tester"+i+"@example.kr", "123aS!"+i, "tester"+i, null);
+            String encodedPassword = passwordEncoder.encode("Pass1234!"+i);
+            User user = User.create("tester"+i+"@example.kr", encodedPassword, "tester"+i, null);
             userRepository.save(user);
 
             PostCreateRequest postCreateRequest = PostCreateRequest.builder()
