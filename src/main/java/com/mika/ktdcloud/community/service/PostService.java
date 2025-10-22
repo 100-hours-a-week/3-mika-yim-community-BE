@@ -58,16 +58,9 @@ public class PostService {
     public PostDetailResponse getDetailPost(Long id) {
         Post post = postRepository.findByIdWithImages(id).
                 orElseThrow(() -> new IllegalArgumentException("Post not found."));
-
         // 조회수 증가
         postViewService.increaseViewCount(id);
-
-        // 댓글 조회
-        Pageable commentPageable = PageRequest.of(0,10, Sort.by("createdAt").ascending());
-        Slice<Comment> commentSlice = commentRepository.findTopCommentsByPostId(id, commentPageable);
-        Slice<CommentResponse> commentResponseSlice = commentSlice.map(commentMapper::toResponse);
-
-        return postMapper.toDetailResponse(post, commentResponseSlice);
+        return postMapper.toDetailResponse(post);
     }
 
     // 게시글 수정

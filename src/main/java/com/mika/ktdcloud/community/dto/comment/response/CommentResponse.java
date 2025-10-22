@@ -13,7 +13,6 @@ public class CommentResponse {
     private final Long postId;
     private final String authorNickname;
     private final String authorProfileImageUrl;
-    private boolean hasChildren; // 대댓글 여부
 
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;

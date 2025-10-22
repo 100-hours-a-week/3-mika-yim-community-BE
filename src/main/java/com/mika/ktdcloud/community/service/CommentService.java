@@ -11,6 +11,8 @@ import com.mika.ktdcloud.community.repository.CommentRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,12 @@ public class CommentService {
 
         post.getStat().increaseCommentCount();
         return commentMapper.toResponse(savedComment);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<CommentResponse> getComment(Long postId, Pageable pageable) {
+        Slice<Comment> commentSlice = commentRepository.findTopCommentsByPostId(postId, pageable);
+        return commentSlice.map(commentMapper::toResponse);
     }
 
     // 댓글 수정

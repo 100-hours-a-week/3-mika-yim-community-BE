@@ -7,7 +7,6 @@ import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
 import com.mika.ktdcloud.community.entity.Post;
 import com.mika.ktdcloud.community.entity.PostImage;
 import com.mika.ktdcloud.community.entity.User;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class PostMapper {
                 .build();
     }
 
-    public PostDetailResponse toDetailResponse(Post post, Slice<CommentResponse> comments) {
+    public PostDetailResponse toDetailResponse(Post post) {
         List<String> imageUrls = post.getImages().stream()
                 .map(PostImage::getImageUrl)
                 .toList();
@@ -52,7 +51,6 @@ public class PostMapper {
                 .viewCount(post.getStat().getViewCount())
                 .likeCount(post.getStat().getLikeCount())
                 .commentCount(post.getStat().getCommentCount())
-                .comments(comments)
                 .build();
     }
 }

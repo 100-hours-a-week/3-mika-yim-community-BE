@@ -46,7 +46,7 @@ public class PostController {
     // 게시글 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id) {
-         PostDetailResponse response = postService.getDetailPost(id);
+        PostDetailResponse response = postService.getDetailPost(id);
         return ResponseEntity.ok(response);
     }
 

@@ -1,9 +1,7 @@
 package com.mika.ktdcloud.community.dto.post.response;
 
-import com.mika.ktdcloud.community.dto.comment.response.CommentResponse;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.domain.Slice;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,8 +25,6 @@ public class PostDetailResponse {
     private final Integer likeCount;
     private final Integer commentCount;
 
-    private final Slice<CommentResponse> comments;
-
     @Builder
     public PostDetailResponse(
             Long id,
@@ -43,8 +39,7 @@ public class PostDetailResponse {
             LocalDateTime deletedAt,
             Integer viewCount,
             Integer likeCount,
-            Integer commentCount,
-            Slice<CommentResponse> comments
+            Integer commentCount
     ) {
         this.id = id;
         this.title = title;
@@ -59,6 +54,5 @@ public class PostDetailResponse {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
-        this.comments = comments;
     }
 }

@@ -20,10 +20,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     public Slice<Comment> findTopCommentsByPostId(Long postId, Pageable pageable) {
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
-                .where(
-                        comment.post.id.eq(postId)
-                        //, comment.parent.isNull() // 대댓글 기능 나중에 추가 예정
-                )
+                .where(comment.post.id.eq(postId))
                 .orderBy(comment.createdAt.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
