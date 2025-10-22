@@ -22,4 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     checkAgreements();
+
+    nextButton.addEventListener('click', () => {
+        // 회원가입 페이지로 이동
+        window.location.href = 'http://localhost:3000/public/pages/signup/signup.html';
+    });
 })
