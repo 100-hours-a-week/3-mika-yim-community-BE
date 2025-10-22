@@ -21,7 +21,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
                 .where(comment.post.id.eq(postId))
-                .orderBy(comment.createdAt.asc())
+                .orderBy(comment.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
