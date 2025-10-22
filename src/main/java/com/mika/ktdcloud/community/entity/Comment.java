@@ -15,7 +15,7 @@ public class Comment extends AbstractAuditable {
     @Column(name = "post_comment_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     // 양방향 연관관계

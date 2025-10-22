@@ -20,10 +20,9 @@ public class Post extends AbstractAuditable {
     @Column(name = "post_id")
     private Long id;
 
-    @Column(nullable = false, length = 30)
-    private String title;
-    @Lob // TEXT 타입으로 선언, 데이터베이스 이식성
     @Column(nullable = false)
+    private String title;
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;

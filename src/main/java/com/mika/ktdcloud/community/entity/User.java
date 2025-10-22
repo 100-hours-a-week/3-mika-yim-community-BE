@@ -19,7 +19,7 @@ public class User extends AbstractAuditable{
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, unique = true)
     private String nickname;
     @Column(name = "profile_image_url", columnDefinition = "VARCHAR(255) DEFAULT 'default_profile_image'")
     private String profileImageUrl;
