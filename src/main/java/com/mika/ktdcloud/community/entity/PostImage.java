@@ -27,14 +27,6 @@ public class PostImage extends AbstractAuditable{
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-//    @Builder
-//    public PostImage(String imageUrl, Integer imageOrder, boolean isRepresentative, Post post) {
-//        this.imageUrl = imageUrl;
-//        this.imageOrder = imageOrder;
-//        this.isRepresentative = isRepresentative;
-//        this.post = post;
-//    }
-
     public static PostImage create(String imageUrl, Integer imageOrder, boolean isRepresentative) {
         PostImage postImage = new PostImage();
         postImage.imageUrl = imageUrl;

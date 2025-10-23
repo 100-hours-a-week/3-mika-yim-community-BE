@@ -3,6 +3,7 @@ package com.mika.ktdcloud.community.mapper;
 import com.mika.ktdcloud.community.dto.comment.response.CommentResponse;
 import com.mika.ktdcloud.community.dto.post.request.PostCreateRequest;
 import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
+import com.mika.ktdcloud.community.dto.post.response.PostLikeResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
 import com.mika.ktdcloud.community.entity.Post;
 import com.mika.ktdcloud.community.entity.PostImage;
@@ -16,6 +17,10 @@ public class PostMapper {
 
     public Post toEntity(PostCreateRequest request, User author) {
         return Post.create(request, author);
+    }
+
+    public PostLikeResponse toLikeResponse(int likeCount, boolean isLiked) {
+        return new PostLikeResponse(likeCount, isLiked);
     }
 
     public PostSimpleResponse toSimpleResponse(Post post) {
@@ -33,7 +38,7 @@ public class PostMapper {
                 .build();
     }
 
-    public PostDetailResponse toDetailResponse(Post post) {
+    public PostDetailResponse toDetailResponse(Post post, boolean isLikedByCurrentUser) {
         List<String> imageUrls = post.getImages().stream()
                 .map(PostImage::getImageUrl)
                 .toList();
@@ -51,6 +56,7 @@ public class PostMapper {
                 .viewCount(post.getStat().getViewCount())
                 .likeCount(post.getStat().getLikeCount())
                 .commentCount(post.getStat().getCommentCount())
+                .isLikedByCurrentUser(isLikedByCurrentUser)
                 .build();
     }
 }

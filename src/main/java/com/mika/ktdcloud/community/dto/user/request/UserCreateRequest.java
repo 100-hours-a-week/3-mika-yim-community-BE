@@ -10,6 +10,7 @@ import lombok.Getter;
 public class UserCreateRequest {
 
     @NotBlank(message = "이메일을 입력해주세요.")
+    @Size(max=350, message = "이메일이 너무 깁니다.")
     @Email(message = "이메일 형식에 맞게 입력해주세요.")
     private String email;
 

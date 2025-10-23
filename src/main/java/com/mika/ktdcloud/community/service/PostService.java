@@ -1,25 +1,20 @@
 package com.mika.ktdcloud.community.service;
 
-import com.mika.ktdcloud.community.dto.comment.response.CommentResponse;
 import com.mika.ktdcloud.community.dto.post.request.PostCreateRequest;
 import com.mika.ktdcloud.community.dto.post.request.PostUpdateRequest;
 import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
+import com.mika.ktdcloud.community.dto.post.response.PostLikeResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
-import com.mika.ktdcloud.community.entity.Comment;
 import com.mika.ktdcloud.community.entity.Post;
 import com.mika.ktdcloud.community.entity.PostLike;
 import com.mika.ktdcloud.community.entity.User;
-import com.mika.ktdcloud.community.mapper.CommentMapper;
 import com.mika.ktdcloud.community.mapper.PostMapper;
-import com.mika.ktdcloud.community.repository.CommentRepository;
 import com.mika.ktdcloud.community.repository.PostLikeRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +27,9 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostViewService postViewService;
     private final PostMapper postMapper;
-    private final CommentMapper commentMapper;
 
     // 게시글 생성
     @Transactional
@@ -55,12 +48,17 @@ public class PostService {
 
     //게시글 상세 조회
     @Transactional(readOnly = true)
-    public PostDetailResponse getDetailPost(Long id) {
+    public PostDetailResponse getDetailPost(Long id, Long currentUserId) {
         Post post = postRepository.findByIdWithImages(id).
                 orElseThrow(() -> new IllegalArgumentException("Post not found."));
-        // 조회수 증가
+        // 좋아요 여부 확인
+        boolean isLiked = false;
+        if (currentUserId != null) {
+            isLiked = postLikeRepository.existsByPostIdAndUserIdAndDeletedAtIsNull(id, currentUserId);
+        }
+        // 조회수 증가 (비동기 또는 다른 방식 생각해보기)
         postViewService.increaseViewCount(id);
-        return postMapper.toDetailResponse(post);
+        return postMapper.toDetailResponse(post, isLiked);
     }
 
     // 게시글 수정
@@ -92,7 +90,7 @@ public class PostService {
 
     // 좋아요 토글
     @Transactional
-    public PostSimpleResponse togglePostLike(Long postId, Long currentUserId) {
+    public PostLikeResponse togglePostLike(Long postId, Long currentUserId) {
         Post post = postRepository.findWithLockById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found."));
 
@@ -100,22 +98,27 @@ public class PostService {
 
         Optional<PostLike> existingLike = postLikeRepository.findByPostAndUser(post, user);
 
+        boolean isLiked;
+
         // 좋아요 테이블에 있으면 수정, 없으면 생성
         if(existingLike.isPresent()) {
             PostLike like = existingLike.get();
             if (like.getDeletedAt() == null) {
                 like.softDelete();
                 post.getStat().decreaseLikeCount();
+                isLiked = false;
             } else {
                 like.restore();
                 post.getStat().increaseLikeCount();
+                isLiked = true;
             }
         } else {
             PostLike newLike = PostLike.create(user, post);
             postLikeRepository.save(newLike);
             post.getStat().increaseLikeCount();
+            isLiked = true;
         }
 
-        return postMapper.toSimpleResponse(post);
+        return postMapper.toLikeResponse(post.getStat().getLikeCount(), isLiked);
     }
 }

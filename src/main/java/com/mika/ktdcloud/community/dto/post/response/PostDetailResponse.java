@@ -25,6 +25,8 @@ public class PostDetailResponse {
     private final Integer likeCount;
     private final Integer commentCount;
 
+    private final boolean isLikedByCurrentUser;
+
     @Builder
     public PostDetailResponse(
             Long id,
@@ -39,7 +41,8 @@ public class PostDetailResponse {
             LocalDateTime deletedAt,
             Integer viewCount,
             Integer likeCount,
-            Integer commentCount
+            Integer commentCount,
+            boolean isLikedByCurrentUser
     ) {
         this.id = id;
         this.title = title;
@@ -54,5 +57,6 @@ public class PostDetailResponse {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.isLikedByCurrentUser = isLikedByCurrentUser;
     }
 }

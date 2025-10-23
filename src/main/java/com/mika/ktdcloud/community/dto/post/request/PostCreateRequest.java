@@ -13,10 +13,11 @@ import java.util.List;
 public class PostCreateRequest {
 
     @NotBlank(message = "제목을 입력해주세요.")
-    @Size(max = 25, message = "제목은 최대 25자까지 입력 가능합니다.")
+    @Size(max = 26, message = "제목은 최대 26자까지 입력 가능합니다.")
     private String title;
 
     @NotBlank(message = "내용을 입력해주세요.")
+    @Size(max = 10000, message = "내용은 최대 10000자까지 입력 가능합니다.")
     private String content;
 
     private String thumbnailUrl;

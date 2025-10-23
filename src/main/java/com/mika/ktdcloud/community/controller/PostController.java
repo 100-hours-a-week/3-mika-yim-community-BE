@@ -3,6 +3,7 @@ package com.mika.ktdcloud.community.controller;
 import com.mika.ktdcloud.community.dto.post.request.PostCreateRequest;
 import com.mika.ktdcloud.community.dto.post.request.PostUpdateRequest;
 import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
+import com.mika.ktdcloud.community.dto.post.response.PostLikeResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
 import com.mika.ktdcloud.community.service.PostService;
 import com.mika.ktdcloud.community.util.SecurityUtil;
@@ -46,7 +47,8 @@ public class PostController {
     // 게시글 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id) {
-        PostDetailResponse response = postService.getDetailPost(id);
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        PostDetailResponse response = postService.getDetailPost(id, currentUserId);
         return ResponseEntity.ok(response);
     }
 
@@ -71,11 +73,11 @@ public class PostController {
 
     // 좋아요 토글
     @PostMapping("/{postId}/like")
-    public ResponseEntity<PostSimpleResponse> togglePostLike(
+    public ResponseEntity<PostLikeResponse> togglePostLike(
             @PathVariable Long postId
     ) {
         Long currentUserId = SecurityUtil.getCurrentUserId();
-        PostSimpleResponse response = postService.togglePostLike(postId,currentUserId);
+        PostLikeResponse response = postService.togglePostLike(postId,currentUserId);
         return ResponseEntity.ok(response);
     }
 }
