@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 public class PostUpdateRequest {
-    @Size(max = 25, message = "제목은 최대 25자까지 입력 가능합니다.")
+    @Size(max = 26, message = "제목은 최대 26자까지 입력 가능합니다.")
     private String title;
 
     private String content;
