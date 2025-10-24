@@ -1,7 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,java,git,gradle,maven,intellij,windows,eclipse,netbeans,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,java,git,gradle,maven,intellij,windows,eclipse,netbeans,visualstudio
 
-src/main/resources/application.yml
+.env
+.idea/
+.DS_Store
 
 ### Eclipse ###
 .metadata
