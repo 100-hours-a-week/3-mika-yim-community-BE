@@ -38,7 +38,7 @@ public class PostMapper {
                 .build();
     }
 
-    public PostDetailResponse toDetailResponse(Post post, boolean isLikedByCurrentUser) {
+    public PostDetailResponse toDetailResponse(Post post, boolean isAuthor, boolean isLikedByCurrentUser) {
         List<String> imageUrls = post.getImages().stream()
                 .map(PostImage::getImageUrl)
                 .toList();
@@ -57,6 +57,7 @@ public class PostMapper {
                 .likeCount(post.getStat().getLikeCount())
                 .commentCount(post.getStat().getCommentCount())
                 .isLikedByCurrentUser(isLikedByCurrentUser)
+                .isAuthor(isAuthor)
                 .build();
     }
 }

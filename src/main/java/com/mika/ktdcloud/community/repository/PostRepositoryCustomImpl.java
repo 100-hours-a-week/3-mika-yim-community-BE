@@ -39,6 +39,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .from(post)
                 .join(post.author, user)
                 .join(post.stat, postStat)
+                .where(post.deletedAt.isNull())
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1) // 요청한 페이지 크기보다 하나 더 많이 조회

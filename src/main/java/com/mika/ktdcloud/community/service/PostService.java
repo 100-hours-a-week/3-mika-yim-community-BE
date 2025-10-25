@@ -51,6 +51,9 @@ public class PostService {
     public PostDetailResponse getDetailPost(Long id, Long currentUserId) {
         Post post = postRepository.findByIdWithImages(id).
                 orElseThrow(() -> new IllegalArgumentException("Post not found."));
+
+        boolean isAuthor = post.getAuthor().getId().equals(currentUserId);
+
         // 좋아요 여부 확인
         boolean isLiked = false;
         if (currentUserId != null) {
@@ -58,7 +61,7 @@ public class PostService {
         }
         // 조회수 증가 (비동기 또는 다른 방식 생각해보기)
         postViewService.increaseViewCount(id);
-        return postMapper.toDetailResponse(post, isLiked);
+        return postMapper.toDetailResponse(post, isAuthor, isLiked);
     }
 
     // 게시글 수정
@@ -80,11 +83,9 @@ public class PostService {
     public void deletePost(Long id, Long currentUserId) throws AccessDeniedException {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found."));
-
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Only the author of this post can delete.");
         }
-
         post.softDelete();
     }
 

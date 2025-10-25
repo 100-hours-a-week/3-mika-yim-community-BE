@@ -26,6 +26,7 @@ public class PostDetailResponse {
     private final Integer commentCount;
 
     private final boolean isLikedByCurrentUser;
+    private final boolean isAuthor;
 
     @Builder
     public PostDetailResponse(
@@ -42,7 +43,8 @@ public class PostDetailResponse {
             Integer viewCount,
             Integer likeCount,
             Integer commentCount,
-            boolean isLikedByCurrentUser
+            boolean isLikedByCurrentUser,
+            boolean isAuthor
     ) {
         this.id = id;
         this.title = title;
@@ -58,5 +60,6 @@ public class PostDetailResponse {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.isLikedByCurrentUser = isLikedByCurrentUser;
+        this.isAuthor = isAuthor;
     }
 }
