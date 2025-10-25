@@ -5,6 +5,7 @@ import com.mika.ktdcloud.community.dto.user.request.UserCreateRequest;
 import com.mika.ktdcloud.community.dto.user.request.UserUpdateRequest;
 import com.mika.ktdcloud.community.dto.user.response.UserResponse;
 import com.mika.ktdcloud.community.service.UserService;
+import com.mika.ktdcloud.community.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,22 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
         UserResponse response = userService.getUser(id);
+        return ResponseEntity.ok(response);
+    }
+
+    // 현재 사용자 정보 조회
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMyProfile() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        UserResponse response = userService.getUser(currentUserId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 현재 사용자 회원 수정
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UserUpdateRequest request) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        UserResponse response = userService.updateUser(currentUserId, request);
         return ResponseEntity.ok(response);
     }
 
