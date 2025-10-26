@@ -20,7 +20,6 @@ import java.nio.file.AccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CommentService {
 
     private final UserRepository userRepository;

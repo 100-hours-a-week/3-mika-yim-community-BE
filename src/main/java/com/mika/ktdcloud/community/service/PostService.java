@@ -59,7 +59,7 @@ public class PostService {
         if (currentUserId != null) {
             isLiked = postLikeRepository.existsByPostIdAndUserIdAndDeletedAtIsNull(id, currentUserId);
         }
-        // 조회수 증가 (비동기 또는 다른 방식 생각해보기)
+        // 조회수 증가
         postViewService.increaseViewCount(id);
         return postMapper.toDetailResponse(post, isAuthor, isLiked);
     }
