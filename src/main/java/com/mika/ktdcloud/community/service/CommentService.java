@@ -37,13 +37,17 @@ public class CommentService {
         Comment savedComment = commentRepository.save(newComment);
 
         post.getStat().increaseCommentCount();
-        return commentMapper.toResponse(savedComment);
+        return commentMapper.toResponse(savedComment, true);
     }
 
     @Transactional(readOnly = true)
-    public Slice<CommentResponse> getComment(Long postId, Pageable pageable) {
-        Slice<Comment> commentSlice = commentRepository.findTopCommentsByPostId(postId, pageable);
-        return commentSlice.map(commentMapper::toResponse);
+    public Slice<CommentResponse> getComment(Long postId, Long currentUserId, Pageable pageable) {
+        Slice<Comment> commentSlice = commentRepository.findTopCommentsByPostIdWithAuthor(postId, pageable);
+
+        return commentSlice.map(comment -> {
+            boolean isAuthor = comment.getAuthor().getId().equals(currentUserId);
+            return commentMapper.toResponse(comment, isAuthor);
+        });
     }
 
     // 댓글 수정
@@ -55,7 +59,7 @@ public class CommentService {
             throw new AccessDeniedException("Only author can update comment.");
         }
         comment.update(request.getContent());
-        return commentMapper.toResponse(comment);
+        return commentMapper.toResponse(comment, true);
     }
 
     // 댓글 삭제

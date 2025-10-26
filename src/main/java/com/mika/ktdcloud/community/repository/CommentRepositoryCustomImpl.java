@@ -10,6 +10,7 @@ import org.springframework.data.domain.SliceImpl;
 import java.util.List;
 
 import static com.mika.ktdcloud.community.entity.QComment.comment;
+import static com.mika.ktdcloud.community.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
@@ -17,9 +18,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Comment> findTopCommentsByPostId(Long postId, Pageable pageable) {
+    public Slice<Comment> findTopCommentsByPostIdWithAuthor(Long postId, Pageable pageable) {
         List<Comment> comments = queryFactory
                 .selectFrom(comment)
+                .leftJoin(comment.author, user).fetchJoin()
                 .where(comment.post.id.eq(postId))
                 .where(comment.deletedAt.isNull())
                 .orderBy(comment.createdAt.desc())

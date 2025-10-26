@@ -28,8 +28,8 @@ public class CommentController {
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
             @RequestBody @Valid CommentCreateRequest request) {
-        Long authorId = SecurityUtil.getCurrentUserId();
-        CommentResponse response = commentService.createComment(request, postId, authorId);
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        CommentResponse response = commentService.createComment(request, postId, currentUserId);
         URI location = URI.create("/api/v1/post/" + postId + "/comments" + response.getId());
         return ResponseEntity.created(location).body(response);
     }
@@ -39,12 +39,13 @@ public class CommentController {
     public ResponseEntity<Slice<CommentResponse>> getComments(
             @PathVariable Long postId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<CommentResponse> comments = commentService.getComment(postId, pageable);
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Slice<CommentResponse> comments = commentService.getComment(postId, currentUserId, pageable);
         return ResponseEntity.ok(comments);
     }
 
     // 댓글 수정
-    @PostMapping("/{commentId}")
+    @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long commentId,
             @RequestBody @Valid CommentUpdateRequest request

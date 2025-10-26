@@ -16,6 +16,9 @@ public class CommentResponse {
 
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
+    private final LocalDateTime deletedAt;
+
+    private final boolean isAuthor;
 
     @Builder
     public CommentResponse(
@@ -25,7 +28,9 @@ public class CommentResponse {
             String authorNickname,
             String authorProfileImageUrl,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt
+            LocalDateTime updatedAt,
+            LocalDateTime deletedAt,
+            boolean isAuthor
     ) {
         this.id = id;
         this.content = content;
@@ -34,5 +39,7 @@ public class CommentResponse {
         this.authorProfileImageUrl = authorProfileImageUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+        this.isAuthor = isAuthor;
     }
 }

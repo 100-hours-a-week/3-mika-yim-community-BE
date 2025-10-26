@@ -13,7 +13,7 @@ public class CommentMapper {
         return Comment.create(request.getContent(), post, author);
     }
 
-    public CommentResponse toResponse(Comment comment) {
+    public CommentResponse toResponse(Comment comment, boolean isAuthor) {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
@@ -22,6 +22,8 @@ public class CommentMapper {
                 .authorProfileImageUrl(comment.getAuthor().getProfileImageUrl())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
+                .deletedAt(comment.getDeletedAt())
+                .isAuthor(isAuthor)
                 .build();
     }
 }
