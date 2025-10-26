@@ -57,6 +57,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    // 현재 사용자 비밀번호 변경
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordUpdateRequest request) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        userService.updatePasswordUser(currentUserId, request);
+        return ResponseEntity.ok().build();
+    }
+
     // 비밀번호 변경
     @PatchMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody @Valid UserPasswordUpdateRequest request) {
