@@ -44,7 +44,7 @@ public class UserController {
 
     // 현재 사용자 회원 수정
     @PatchMapping("/me")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody @Valid UserUpdateRequest request) {
+    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserUpdateRequest request) {
         Long currentUserId = SecurityUtil.getCurrentUserId();
         UserResponse response = userService.updateUser(currentUserId, request);
         return ResponseEntity.ok(response);
@@ -62,6 +62,15 @@ public class UserController {
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody @Valid UserPasswordUpdateRequest request) {
         userService.updatePasswordUser(id, request);
         return ResponseEntity.ok().build();
+    }
+
+    // 현재 회원 삭제
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentUser() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        userService.deleteUser(currentUserId);
+        // 서비스의 delete(id)를 호출해 해당 유저의 soft delete를 진행한다.
+        return ResponseEntity.noContent().build();
     }
 
     // 회원 삭제
