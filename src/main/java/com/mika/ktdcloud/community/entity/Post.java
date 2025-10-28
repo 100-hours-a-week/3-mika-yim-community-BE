@@ -101,7 +101,6 @@ public class Post extends AbstractAuditable {
     // Post-User 양방향 연관 관계 편의 메소드
     public void confirmAuthor(User author) {
         this.author = author;
-//        author.getPosts().add(this); // 양방향 관계 동기화
     }
 
     // Post-Comment 편의 메소드

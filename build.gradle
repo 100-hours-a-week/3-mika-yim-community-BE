@@ -29,7 +29,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web' // 내장 웹 서버 제공 (Tomcat)
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.0' // 디버깅, 분석 로그 생성
     implementation 'org.springframework.boot:spring-boot-starter-validation' // 유효성 검사
-    implementation 'org.springframework.boot:spring-boot-starter-security' // spring security, 보안 필터 체인 활성화
+    implementation 'org.springframework.security:spring-security-crypto:6.3.3' // BCryptPasswordEncoder 암호화 유틸
     compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
