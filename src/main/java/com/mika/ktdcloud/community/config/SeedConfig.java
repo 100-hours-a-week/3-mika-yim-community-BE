@@ -31,7 +31,7 @@ public class SeedConfig {
 
     @Transactional
     void seed() {
-        if (userRepository.count() >= 10 && postRepository.count() >= 10) return;
+        if (userRepository.count() >= 10 || postRepository.count() >= 10) return;
 
         IntStream.rangeClosed(1, 100).forEach(i -> {
             String encodedPassword = passwordEncoder.encode("Pass1234!"+i);

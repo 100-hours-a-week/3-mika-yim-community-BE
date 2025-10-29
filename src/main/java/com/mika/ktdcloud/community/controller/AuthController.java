@@ -1,11 +1,9 @@
 package com.mika.ktdcloud.community.controller;
 
 import com.mika.ktdcloud.community.dto.auth.request.LoginRequest;
-import com.mika.ktdcloud.community.dto.auth.request.TokenRefreshRequest;
-import com.mika.ktdcloud.community.dto.auth.response.LoginResponse;
-import com.mika.ktdcloud.community.service.AuthService;
-import com.mika.ktdcloud.community.util.CookieUtil;
-import jakarta.servlet.http.HttpServletResponse;
+import com.mika.ktdcloud.community.service.SessionAuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,36 +17,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
-    private final CookieUtil cookieUtil;
+    private final SessionAuthService authService;
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<String> login(
             @RequestBody @Valid LoginRequest request,
-            HttpServletResponse httpServletResponse) {
-        LoginResponse loginResponse = authService.login(request);
-        cookieUtil.addTokenCookies(httpServletResponse, loginResponse);
-        return ResponseEntity.ok(loginResponse);
-    }
-
-    // 토큰 재발급
-    @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> reissue(
-            @RequestBody @Valid TokenRefreshRequest request,
-            HttpServletResponse httpServletResponse) {
-        LoginResponse loginResponse = authService.refreshTokens(request);
-        cookieUtil.addTokenCookies(httpServletResponse, loginResponse);
-        return ResponseEntity.ok(loginResponse);
+            HttpSession httpSession) {
+        authService.login(request, httpSession);
+        return ResponseEntity.ok("로그인 성공");
     }
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
-            @RequestBody @Valid TokenRefreshRequest request,
-            HttpServletResponse httpServletResponse) {
-        authService.logout(request);
-        cookieUtil.deleteTokenCookies(httpServletResponse);
-        return ResponseEntity.ok("로그아웃 되었습니다.");
+    public ResponseEntity<String> logout(HttpServletRequest httpServletRequest) {
+        HttpSession httpSession = httpServletRequest.getSession(false);
+        authService.logout(httpSession);
+        return ResponseEntity.ok("로그아웃 완료");
+
     }
 }

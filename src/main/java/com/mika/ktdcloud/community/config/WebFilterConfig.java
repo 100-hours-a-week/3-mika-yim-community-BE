@@ -1,6 +1,6 @@
 package com.mika.ktdcloud.community.config;
 
-import com.mika.ktdcloud.community.jwt.JwtAuthFilter;
+import com.mika.ktdcloud.community.filter.SessionAuthFilter;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class WebFilterConfig {
-    private final JwtAuthFilter jwtAuthFilter;
+    private final SessionAuthFilter sessionAuthFilter;
 
     @Bean
-    public FilterRegistrationBean<Filter> jwtFilter() {
+    public FilterRegistrationBean<Filter> sessionFilter() {
         FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-        filterRegistrationBean.setFilter(jwtAuthFilter);
+        filterRegistrationBean.setFilter(sessionAuthFilter);
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setOrder(1);
         return filterRegistrationBean;
