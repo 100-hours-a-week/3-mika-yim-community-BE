@@ -25,7 +25,7 @@ public class SessionAuthService {
         }
 
         session.setAttribute("userId", user.getId());
-        session.setMaxInactiveInterval(1800);
+        session.setMaxInactiveInterval(30*60);
     }
 
     public void logout(HttpSession session) {
