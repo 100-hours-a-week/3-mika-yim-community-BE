@@ -19,9 +19,9 @@ spring:
     active: dev # dev 프로필을 사용중일 때는 더미데이터 추가
 
 jwt:
-  secret: f175da761cb740d03f9e43ac4d78a438e051bb73a7163624a10d97e4f015c6f9 # openssl rand -hex 32
+  secret: ${JWT_SECRET_KEY} # openssl rand -hex 32
   access-token-expiration: 1800 # 30분
-  refresh-token-expiration: 604800 # 7일
+  refresh-token-expiration: 2592000 # 30일
 
 logging:
   level:
