@@ -18,7 +18,6 @@ public class SessionAuthFilter extends OncePerRequestFilter {
     private static final String[] EXCLUDED_PATHS = {
             "/api/v1/users/signup",
             "/api/v1/auth/login",
-            "/api/v1/auth/reissue",
             "/terms/**",
             "/images/**",
             "/css/**",
