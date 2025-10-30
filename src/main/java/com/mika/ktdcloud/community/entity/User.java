@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Table(name = "users")
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자, 리플렉션과 프록시 객체 생성을 위해서 필요함
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends AbstractAuditable{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,7 +57,7 @@ public class User extends AbstractAuditable{
     public void softDelete() {
         super.softDelete();
         // 현재는 소프트 딜리트 때문에 탈퇴하면 그 이메일을 영구적으로 재사용 불가능함
-        // 30일 후 아카이빙 이후 재사용 허용하는 방법을 구현해야 함
+        // 30일 후 아카이빙 재사용 허용하는 방법을 구현해야 함
     }
 
 }
