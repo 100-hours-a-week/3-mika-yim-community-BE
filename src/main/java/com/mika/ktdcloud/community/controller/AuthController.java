@@ -34,6 +34,5 @@ public class AuthController {
         HttpSession httpSession = httpServletRequest.getSession(false);
         authService.logout(httpSession);
         return ResponseEntity.ok("로그아웃 완료");
-
     }
 }
