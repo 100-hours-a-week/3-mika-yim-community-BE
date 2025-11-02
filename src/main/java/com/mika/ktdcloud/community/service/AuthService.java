@@ -1,15 +1,12 @@
 package com.mika.ktdcloud.community.service;
 
 import com.mika.ktdcloud.community.dto.auth.request.LoginRequest;
-import com.mika.ktdcloud.community.dto.auth.request.TokenRefreshRequest;
-import com.mika.ktdcloud.community.dto.auth.response.LoginResponse;
+import com.mika.ktdcloud.community.dto.auth.response.TokenResponse;
 import com.mika.ktdcloud.community.entity.RefreshToken;
 import com.mika.ktdcloud.community.entity.User;
 import com.mika.ktdcloud.community.jwt.JwtProvider;
 import com.mika.ktdcloud.community.repository.RefreshTokenRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
-import com.mika.ktdcloud.community.util.CookieUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +25,7 @@ public class AuthService {
 
     // 로그인
     @Transactional
-    public LoginResponse login(LoginRequest request) {
+    public TokenResponse login(LoginRequest request) {
         User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("이메일이 일치하지 않습니다."));
 
@@ -37,59 +34,65 @@ public class AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 새로운 토큰 발급 및 저장
+        // 새로운 토큰 발급
         String accessToken = jwtProvider.createAccessToken(user.getId());
         String refreshToken = jwtProvider.createRefreshToken(user.getId());
-        Instant refreshTokenExpiresAt = Instant.now().plusMillis(jwtProvider.getRefreshTokenExpiration());
+        long refreshTokenMaxAge = jwtProvider.getRefreshTokenExpiration();
+        Instant refreshTokenExpiresAt = Instant.now().plusSeconds(refreshTokenMaxAge);
 
-        // 사용자의 리프레쉬 토큰이 이미 DB에 있다면 업데이트, 없다면 새로 생성
-        refreshTokenRepository.findByUser(user)
-                .ifPresentOrElse(
-                        token -> token.updateToken(refreshToken, refreshTokenExpiresAt),
-                        () -> refreshTokenRepository.save(new RefreshToken(
-                                user,
-                                refreshToken,
-                                refreshTokenExpiresAt,
-                                false
-                        ))
-                );
+        // DB에 refresh token 저장
+        refreshTokenRepository.save(new RefreshToken(
+                user,
+                refreshToken,
+                refreshTokenExpiresAt,
+                false
+        ));
 
-        return new LoginResponse(accessToken, refreshToken);
+        return new TokenResponse(accessToken, refreshToken, refreshTokenMaxAge);
     }
 
     // 토큰 재발급
     @Transactional
-    public LoginResponse refreshTokens(TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-
+    public TokenResponse refreshTokens(String requestRefreshToken) {
         // DB에서 refresh token이 유효한지 조회
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenValueAndRevokedFalse(requestRefreshToken).orElse(null);
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenValue(requestRefreshToken)
+                .orElseThrow(() -> new SecurityException("유효하지 않은 리프레시 토큰"));
 
-        if (refreshToken == null || refreshToken.getExpiresAt().isBefore(Instant.now())) {
-            return null;
+        if (refreshToken.isRevoked()) {
+            throw new SecurityException("비정상적인 토큰 사용이 감지되었습니다.");
         }
+
+        if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
+            refreshTokenRepository.delete(refreshToken);
+            throw new SecurityException("시간 만료로 로그아웃 되었습니다.");
+        }
+
+        // 기존 토큰 무효화
+        refreshToken.revoke();
 
         User user = refreshToken.getUser();
 
         // 보안을 위해 access token과 refresh token 모두 새로 발급
         String newAccessToken = jwtProvider.createAccessToken(user.getId());
         String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
-        Instant refreshTokenExpiresAt = Instant.now().plusMillis(jwtProvider.getRefreshTokenExpiration());
+        long refreshTokenMaxAge = jwtProvider.getRefreshTokenExpiration();
+        Instant refreshTokenExpiresAt = Instant.now().plusSeconds(refreshTokenMaxAge);
 
-        // DB의 기존 토큰에 업데이트
-        refreshToken.updateToken(newRefreshToken, refreshTokenExpiresAt);
+        // DB에 새로운 refresh token 저장
+        refreshTokenRepository.save(new RefreshToken(
+                user,
+                newRefreshToken,
+                refreshTokenExpiresAt,
+                false
+        ));
 
-        return new LoginResponse(newAccessToken, newRefreshToken);
+        return new TokenResponse(newAccessToken, newRefreshToken, refreshTokenMaxAge);
     }
 
     // 로그아웃
     @Transactional
-    public void logout(TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-
-        // DB에서 토큰을 찾아 revoke 상태로 변경
-        refreshTokenRepository.findByTokenValueAndRevokedFalse(requestRefreshToken)
+    public void logout(String requestRefreshToken) {
+        refreshTokenRepository.findByTokenValue(requestRefreshToken)
                 .ifPresent(RefreshToken::revoke);
-
     }
 }

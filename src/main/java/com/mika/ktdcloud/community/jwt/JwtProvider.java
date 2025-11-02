@@ -38,6 +38,7 @@ public class JwtProvider {
     public String createAccessToken(Long userId) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .claim("typ", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plusSeconds(accessTokenExpiration)))
                 .signWith(key, SignatureAlgorithm.HS256)

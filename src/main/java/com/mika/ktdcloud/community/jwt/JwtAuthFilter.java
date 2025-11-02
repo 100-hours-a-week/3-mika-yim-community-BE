@@ -3,7 +3,6 @@ package com.mika.ktdcloud.community.jwt;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -25,6 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/api/v1/users/signup",
             "/api/v1/auth/login",
             "/api/v1/auth/refresh",
+            "/api/v1/auth/logout",
             "/terms/**",
             "/images/**",
             "/css/**",
@@ -43,53 +43,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain chain
     ) throws IOException, ServletException {
-        boolean isIndex = isIndexRequest(request);
-        Optional<String> token = extractToken(request);
+        Optional<String> token = extractTokenFromHeader(request);
 
         if (token.isEmpty()) {
-            if (isIndex) {
-                response.sendRedirect("/login");
-                return;
-            }
-            chain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Missing Authorization header");
             return;
         }
 
         if (!validateAndSetAttributes(token.get(), request)) {
-            if (isIndex) {
-                response.sendRedirect("/login");
-            } else {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            }
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid token or expired token");
             return;
         }
 
         chain.doFilter(request, response);
     }
 
-    private boolean isIndexRequest(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return "/".equals(uri) || "/index".equals(uri);
-    }
-
-    private Optional<String> extractToken(HttpServletRequest request) {
-        return extractTokenFromHeader(request)
-                .or(() -> extractTokenFromCookie(request));
-    }
-
     private Optional<String> extractTokenFromHeader(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader("Authorization"))
                 .filter(header -> header.startsWith("Bearer "))
                 .map(header -> header.substring(7));
-    }
-
-    private Optional<String> extractTokenFromCookie(HttpServletRequest request) {
-        return Optional.ofNullable(request.getCookies())
-                .stream()
-                .flatMap(Arrays::stream)
-                .filter(cookie -> "refreshToken".equals(cookie.getName()))
-                .map(Cookie::getValue)
-                .findFirst();
     }
 
     private boolean validateAndSetAttributes(String token, HttpServletRequest request) {
