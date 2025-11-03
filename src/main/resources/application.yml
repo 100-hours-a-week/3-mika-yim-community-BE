@@ -21,7 +21,7 @@ spring:
 jwt:
   secret: {JWT_SECRET_KEY} # openssl rand -hex 32
   access-token-expiration-ms: 1800000 # 30분
-  refresh-token-expiration-ms: 604800000 # 7일
+  refresh-token-expiration-ms: 2592000000 # 30일
 
 logging:
   level:
