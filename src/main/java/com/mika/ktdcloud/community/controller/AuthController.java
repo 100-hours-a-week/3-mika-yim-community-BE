@@ -43,17 +43,8 @@ public class AuthController {
             @CookieValue(name = "refreshToken", required = true) String refreshToken,
             HttpServletResponse httpServletResponse
     ) {
-        TokenResponse tokenResponse = authService.refreshTokens(refreshToken);
-
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshTokenValue())
-                .httpOnly(true)
-                .path("/api/v1/auth/refresh")
-                .maxAge(tokenResponse.getRefreshTokenMaxAgeSeconds())
-                .build();
-
-        httpServletResponse.addHeader("Set-Cookie", cookie.toString());
-
-        return ResponseEntity.ok(new LoginResponse(tokenResponse.getAccessTokenValue()));
+        LoginResponse loginResponse = authService.refreshTokens(refreshToken);
+        return ResponseEntity.ok(loginResponse);
     }
 
     // 로그아웃

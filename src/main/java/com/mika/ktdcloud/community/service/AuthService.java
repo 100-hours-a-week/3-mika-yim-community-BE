@@ -1,6 +1,7 @@
 package com.mika.ktdcloud.community.service;
 
 import com.mika.ktdcloud.community.dto.auth.request.LoginRequest;
+import com.mika.ktdcloud.community.dto.auth.response.LoginResponse;
 import com.mika.ktdcloud.community.dto.auth.response.TokenResponse;
 import com.mika.ktdcloud.community.entity.RefreshToken;
 import com.mika.ktdcloud.community.entity.User;
@@ -53,7 +54,7 @@ public class AuthService {
 
     // 토큰 재발급
     @Transactional
-    public TokenResponse refreshTokens(String requestRefreshToken) {
+    public LoginResponse refreshTokens(String requestRefreshToken) {
         // DB에서 refresh token이 유효한지 조회
         RefreshToken refreshToken = refreshTokenRepository.findByTokenValue(requestRefreshToken)
                 .orElseThrow(() -> new SecurityException("유효하지 않은 리프레시 토큰"));
@@ -67,26 +68,12 @@ public class AuthService {
             throw new SecurityException("시간 만료로 로그아웃 되었습니다.");
         }
 
-        // 기존 토큰 무효화
-        refreshToken.revoke();
-
         User user = refreshToken.getUser();
 
         // 보안을 위해 access token과 refresh token 모두 새로 발급
         String newAccessToken = jwtProvider.createAccessToken(user.getId());
-        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
-        long refreshTokenMaxAge = jwtProvider.getRefreshTokenExpiration();
-        Instant refreshTokenExpiresAt = Instant.now().plusSeconds(refreshTokenMaxAge);
 
-        // DB에 새로운 refresh token 저장
-        refreshTokenRepository.save(new RefreshToken(
-                user,
-                newRefreshToken,
-                refreshTokenExpiresAt,
-                false
-        ));
-
-        return new TokenResponse(newAccessToken, newRefreshToken, refreshTokenMaxAge);
+        return new LoginResponse(newAccessToken);
     }
 
     // 로그아웃
