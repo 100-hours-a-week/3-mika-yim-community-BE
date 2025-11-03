@@ -70,7 +70,7 @@ public class AuthService {
 
         User user = refreshToken.getUser();
 
-        // 보안을 위해 access token과 refresh token 모두 새로 발급
+        // access token 새로 발급
         String newAccessToken = jwtProvider.createAccessToken(user.getId());
 
         return new LoginResponse(newAccessToken);
