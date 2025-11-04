@@ -28,8 +28,9 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", tokenResponse.getRefreshTokenValue())
                 .httpOnly(true)
-                .path("/api/v1/auth/refresh")
+                .path("/")
                 .maxAge(tokenResponse.getRefreshTokenMaxAgeSeconds())
+                .sameSite("None")
                 .build();
 
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());
@@ -59,8 +60,9 @@ public class AuthController {
         // 쿠키 만료
         ResponseCookie cookie = ResponseCookie.from("refreshToken", null)
                 .httpOnly(true)
-                .path("/api/v1/auth/refresh")
+                .path("/")
                 .maxAge(0)
+                .sameSite("None")
                 .build();
 
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());

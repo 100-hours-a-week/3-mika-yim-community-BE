@@ -43,15 +43,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain chain
     ) throws IOException, ServletException {
+
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         Optional<String> token = extractTokenFromHeader(request);
 
         if (token.isEmpty()) {
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Missing Authorization header");
             return;
         }
 
         if (!validateAndSetAttributes(token.get(), request)) {
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid token or expired token");
             return;
