@@ -1,6 +1,6 @@
 package com.mika.ktdcloud.community.controller;
 
-import com.mika.ktdcloud.community.dto.error.ErrorResponse;
+import com.mika.ktdcloud.community.dto.error.response.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

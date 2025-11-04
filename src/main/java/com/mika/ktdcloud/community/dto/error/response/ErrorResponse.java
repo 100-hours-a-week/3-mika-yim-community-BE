@@ -1,4 +1,4 @@
-package com.mika.ktdcloud.community.dto.error;
+package com.mika.ktdcloud.community.dto.error.response;
 
 import lombok.Getter;
 
