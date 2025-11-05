@@ -24,13 +24,13 @@ public class UserService {
     @Transactional
     public UserResponse createUser(UserCreateRequest request){
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("This email is already in use.");
+            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
         }
         if (userRepository.existsByNickname(request.getNickname())) {
-            throw new IllegalArgumentException("This nickname is already in use.");
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
         }
         if (!request.getPassword().equals(request.getPasswordConfirm())) {
-            throw new IllegalArgumentException("Password does not match.");
+            throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -46,7 +46,7 @@ public class UserService {
     public UserResponse getUser(Long id) {
         // Optional 반환, 엔티티의 데이터가 실제로 필요할 때 사용
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
         return userMapper.toResponse(user);
     }
 
@@ -62,10 +62,10 @@ public class UserService {
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
 
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
         if (request.getNickname() != null && !request.getNickname().equals(user.getNickname())) {
             if (userRepository.existsByNickname(request.getNickname())) {
-                throw new IllegalArgumentException("Nickname is already in use.");
+                throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
             }
         }
         user.updateProfile(request.getNickname(), request.getProfileImageUrl());
@@ -76,12 +76,12 @@ public class UserService {
     @Transactional
     public void updatePasswordUser(Long id, UserPasswordUpdateRequest request) {
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Incorrect password.");
+            throw new IllegalArgumentException("비밀번호가 틀렸습니다.");
         }
         if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
-            throw new IllegalArgumentException("The new password does not match.");
+            throw new IllegalArgumentException("비밀번호 확인이 일치하지 않습니다.");
         }
         String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
         user.updatePassword(encodedNewPassword);
@@ -91,7 +91,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id){
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found."));
+                        .orElseThrow(() -> new IllegalArgumentException("회원정보를 찾을 수 없습니다."));
         user.softDelete();
     }
 }
