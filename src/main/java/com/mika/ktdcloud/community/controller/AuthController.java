@@ -30,8 +30,6 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(tokenResponse.getRefreshTokenMaxAgeSeconds())
-                .sameSite("None")
-                .secure(true)
                 .build();
 
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());
@@ -63,8 +61,6 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("None")
-                .secure(true)
                 .build();
 
         httpServletResponse.addHeader("Set-Cookie", cookie.toString());
