@@ -14,11 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -28,14 +31,14 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 생성
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostSimpleResponse> createPost(
-            @RequestBody @Valid PostCreateRequest request,
+            @RequestPart("postData") @Valid PostCreateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             HttpServletRequest httpServletRequest
     ) {
-        // SecurityContextHolder에서 사용자 id 추출
         Long authorId = SecurityUtil.getCurrentUserId(httpServletRequest);
-        PostSimpleResponse response = postService.createPost(request, authorId);
+        PostSimpleResponse response = postService.createPost(request, imageFiles, authorId);
         URI location = URI.create("/api/v1/posts/" + response.getId());
         return ResponseEntity.created(location).body(response);
     }
@@ -60,11 +63,12 @@ public class PostController {
     @PatchMapping("/{id}")
     public ResponseEntity<PostSimpleResponse> updatePost(
             @PathVariable("id") Long postId,
-            @RequestBody @Valid PostUpdateRequest request,
+            @RequestPart("postData") @Valid PostUpdateRequest request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
             HttpServletRequest httpServletRequest
     ) throws AccessDeniedException {
         Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
-        PostSimpleResponse response = postService.updatePost(request, postId, currentUserId);
+        PostSimpleResponse response = postService.updatePost(request, imageFiles, postId, currentUserId);
         return ResponseEntity.ok(response);
     }
 

@@ -40,7 +40,7 @@ public class PostMapper {
 
     public PostDetailResponse toDetailResponse(Post post, boolean isAuthor, boolean isLikedByCurrentUser) {
         List<String> imageUrls = post.getImages().stream()
-                .map(PostImage::getLargeUrl)
+                .map(PostImage::getOriginalUrl)
                 .toList();
         return PostDetailResponse.builder()
                 .id(post.getId())

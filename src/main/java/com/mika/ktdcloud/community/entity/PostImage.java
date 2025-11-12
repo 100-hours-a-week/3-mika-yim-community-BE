@@ -24,23 +24,15 @@ public class PostImage extends AbstractAuditable{
     private String originalUrl;
 
     @Column(nullable = false)
-    private String largeUrl;
-
-    @Column(nullable = false)
-    private String smallUrl;
-
-    @Column(nullable = false)
     private Integer imageOrder;
 
     @Column(name = "is_representative", nullable = false)
     private boolean isRepresentative = false;
 
     @Builder
-    public PostImage(Post post, String originalUrl, String largeUrl, String smallUrl, Integer imageOrder) {
+    public PostImage(Post post, String originalUrl, Integer imageOrder) {
         this.post = post;
         this.originalUrl = originalUrl;
-        this.largeUrl = largeUrl;
-        this.smallUrl = smallUrl;
         this.imageOrder = imageOrder;
         this.isRepresentative = false;
     }
@@ -51,5 +43,14 @@ public class PostImage extends AbstractAuditable{
 
     protected void setRepresentative(boolean isRepresentative) {
         this.isRepresentative = isRepresentative;
+    }
+
+    public void updateImageUrl(String imageUrl) {
+        this.originalUrl = imageUrl;
+    }
+
+    @Override
+    public void softDelete() {
+        super.softDelete();
     }
 }

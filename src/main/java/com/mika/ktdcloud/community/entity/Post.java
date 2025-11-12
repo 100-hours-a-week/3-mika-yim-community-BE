@@ -33,7 +33,7 @@ public class Post extends AbstractAuditable {
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @OrderBy("imageOrder ASC") // 항상 이미지 순서대로 정렬
     private List<PostImage> images = new ArrayList<>();
 
@@ -53,9 +53,40 @@ public class Post extends AbstractAuditable {
         return post;
     }
 
-    public void update(PostUpdateRequest request) {
+    public void update(PostUpdateRequest request, List<PostImage> newImages) {
         if (request.getTitle() != null) this.title = request.getTitle();
         if (request.getContent() != null) this.content = request.getContent();
+
+        // 기존 이미지들 소프트 딜리트
+        for (PostImage oldImage : this.images) {
+            oldImage.softDelete();
+        }
+
+        // 메모리상의 컬렉션 비우기
+        //    (orphanRemoval=false이므로 DB에서 삭제되지 않음. 안전함.)
+        this.images.clear();
+
+        // 새로운 이미지들 추가
+        for (PostImage newImage : newImages) {
+            this.addImage(newImage);
+        }
+
+        // 썸네일 재설정
+        String newThumbnailUrl = request.getThumbnailUrl(); // DTO에서 요청한 썸네일 URL
+        PostImage thumbnail = null;
+
+        if (newThumbnailUrl != null && !newThumbnailUrl.isBlank()) {
+            thumbnail = newImages.stream()
+                    .filter(img -> img.getOriginalUrl().equals(newThumbnailUrl))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (thumbnail == null && !newImages.isEmpty()) {
+            thumbnail = newImages.get(0); // 새 이미지 중 첫 번째를 썸네일로
+        }
+
+        this.setThumbnail(thumbnail); // 썸네일 설정 메서드 호출
     }
 
     public void addImage(PostImage image) {
@@ -64,10 +95,16 @@ public class Post extends AbstractAuditable {
     }
 
     public void setThumbnail(PostImage image) {
-        this.thumbnailUrl = image.getSmallUrl();
-
-        for (PostImage img : this.images) {
-            img.setRepresentative(img.equals(image));
+        if(image == null) {
+            this.thumbnailUrl = null;
+            for (PostImage img : this.images) {
+                img.setRepresentative(false);
+            }
+        } else {
+            this.thumbnailUrl = image.getOriginalUrl();
+            for (PostImage img : this.images) {
+                img.setRepresentative(img.equals(image));
+            }
         }
     }
 

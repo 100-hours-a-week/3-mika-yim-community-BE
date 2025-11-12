@@ -6,19 +6,24 @@ import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostLikeResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostSimpleResponse;
 import com.mika.ktdcloud.community.entity.Post;
+import com.mika.ktdcloud.community.entity.PostImage;
 import com.mika.ktdcloud.community.entity.PostLike;
 import com.mika.ktdcloud.community.entity.User;
 import com.mika.ktdcloud.community.mapper.PostMapper;
 import com.mika.ktdcloud.community.repository.PostLikeRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
+import com.mika.ktdcloud.community.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,13 +35,27 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostViewService postViewService;
     private final PostMapper postMapper;
+    private final PostImageService postImageService;
 
     // 게시글 생성
     @Transactional
-    public PostSimpleResponse createPost(PostCreateRequest request, Long authorId) {
-        User author = userRepository.getReferenceById(authorId); // 프록시로 조회, SELECT 쿼리 실행 안함
+    public PostSimpleResponse createPost(PostCreateRequest request, List<MultipartFile> imageFiles, Long authorId) {
+        User author = userRepository.getReferenceById(authorId);
         Post newPost = postMapper.toEntity(request, author);
         Post savedPost = postRepository.save(newPost);
+
+        if(imageFiles != null && !imageFiles.isEmpty()) {
+            for (int i=0; i<imageFiles.size(); i++){
+                PostImage savedImage = postImageService.storeFile(imageFiles.get(i), savedPost, i);
+                savedPost.addImage(savedImage);
+            }
+        }
+
+        if(!savedPost.getImages().isEmpty()) {
+            PostImage firstImage = savedPost.getImages().getFirst();
+            savedPost.setThumbnail(firstImage);
+        }
+        
         return postMapper.toSimpleResponse(savedPost);
     }
 
@@ -54,34 +73,48 @@ public class PostService {
 
         boolean isAuthor = post.getAuthor().getId().equals(currentUserId);
 
-        // 좋아요 여부 확인
         boolean isLiked = false;
         if (currentUserId != null) {
             isLiked = postLikeRepository.existsByPostIdAndUserIdAndDeletedAtIsNull(id, currentUserId);
         }
-        // 조회수 증가
+
         postViewService.increaseViewCount(id);
         return postMapper.toDetailResponse(post, isAuthor, isLiked);
     }
 
     // 게시글 수정
     @Transactional
-    public PostSimpleResponse updatePost(PostUpdateRequest request, Long postId, Long currentUserId)
-            throws AccessDeniedException {
-        Post post = postRepository.findById(postId)
+    public PostSimpleResponse updatePost(
+            PostUpdateRequest request,
+            List<MultipartFile> imageFiles,
+            Long postId,
+            Long currentUserId
+    ) throws AccessDeniedException {
+        Post post = postRepository.findByIdWithImages(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found."));
 
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Only author can update post.");
         }
-        post.update(request);
+
+        List<PostImage> newImages = new ArrayList<>();
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (int i = 0; i < imageFiles.size(); i++) {
+                // ImageService가 파일을 저장하고, '영속화되지 않은' PostImage 엔티티를 반환
+                PostImage newImage = postImageService.storeFile(imageFiles.get(i), post, i);
+                newImages.add(newImage);
+            }
+        }
+
+        post.update(request, newImages);
+
         return postMapper.toSimpleResponse(post);
     }
 
     // 게시글 삭제
     @Transactional
     public void deletePost(Long id, Long currentUserId) throws AccessDeniedException {
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findByIdWithImages(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found."));
         if (!post.getAuthor().getId().equals(currentUserId)) {
             throw new AccessDeniedException("Only the author of this post can delete.");
@@ -101,7 +134,6 @@ public class PostService {
 
         boolean isLiked;
 
-        // 좋아요 테이블에 있으면 수정, 없으면 생성
         if(existingLike.isPresent()) {
             PostLike like = existingLike.get();
             if (like.getDeletedAt() == null) {
