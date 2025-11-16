@@ -25,6 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nextButton.addEventListener('click', () => {
         // 회원가입 페이지로 이동
-        window.location.href = 'http://3.35.110.93:3000/public/pages/signup/signup.html';
+        window.location.href = '/public/pages/signup/signup.html';
     });
 })

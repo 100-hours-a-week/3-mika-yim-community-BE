@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,6 +19,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
+
+    @Value("${app.web-server-url}")
+    private String webServerUrl;
 
     // 필터 제외 경로 목록
     private static final String[] EXCLUDED_PATHS = {
@@ -52,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Optional<String> token = extractTokenFromHeader(request);
 
         if (token.isEmpty()) {
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Access-Control-Allow-Origin", webServerUrl);
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -61,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (!validateAndSetAttributes(token.get(), request)) {
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Access-Control-Allow-Origin", webServerUrl);
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

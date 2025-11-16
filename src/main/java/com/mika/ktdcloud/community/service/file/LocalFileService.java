@@ -17,7 +17,7 @@ public class LocalFileService implements FileService {
 
     public LocalFileService(
             @Value("${file.upload-dir}") String uploadDir,
-            @Value("${app.server-url}") String serverUrl
+            @Value("${app.web-application-server-url}") String serverUrl
     ) {
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         this.serverUrl = serverUrl;
