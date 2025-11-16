@@ -20,7 +20,7 @@ public class S3FileService implements FileService {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${aws.cloudfront.url}")
+    @Value("${aws.cloud-front.url}")
     private String cdnUrl;
 
     public S3FileService(S3Client s3Client) {
