@@ -18,7 +18,8 @@ import java.io.IOException;
 public class PostImageService {
     private final PostImageRepository postImageRepository;
 
-    @Qualifier("localFileService") // "local" 또는 "s3"
+    // @Qualifier("localFileService")
+    @Qualifier("s3FileService")
     private final FileService fileService;
 
     @Transactional
@@ -36,5 +37,15 @@ public class PostImageService {
         } catch (IOException ex) {
             throw new RuntimeException("파일 저장에 실패했습니다.", ex);
         }
+    }
+
+    @Transactional
+    public void deleteFile(PostImage postImage) {
+        if (postImage == null || postImage.getOriginalUrl() == null) {
+            return;
+        }
+        String imageUrl = postImage.getOriginalUrl();
+        fileService.deleteFile(imageUrl); // S3에서 먼저 삭제
+        postImageRepository.delete(postImage); // DB에서 삭제
     }
 }

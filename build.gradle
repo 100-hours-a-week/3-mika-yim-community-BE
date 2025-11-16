@@ -50,6 +50,10 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0' // 핵심 JWT 인터페이스 & 빌더 API
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0' // 실제 JWT 구현체
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0' // JWT를 JSON으로 직렬화/역직렬화 하는데 사용
+
+    // AWS S3
+    implementation platform('software.amazon.awssdk:bom:2.38.7')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {

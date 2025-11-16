@@ -13,7 +13,6 @@ import com.mika.ktdcloud.community.mapper.PostMapper;
 import com.mika.ktdcloud.community.repository.PostLikeRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
-import com.mika.ktdcloud.community.service.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -55,7 +54,7 @@ public class PostService {
             PostImage firstImage = savedPost.getImages().getFirst();
             savedPost.setThumbnail(firstImage);
         }
-        
+
         return postMapper.toSimpleResponse(savedPost);
     }
 
