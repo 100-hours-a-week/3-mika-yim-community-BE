@@ -14,13 +14,17 @@ import java.io.IOException;
 
 
 @Service
-@RequiredArgsConstructor
 public class PostImageService {
     private final PostImageRepository postImageRepository;
-
-    // @Qualifier("localFileService")
-    @Qualifier("s3FileService")
     private final FileService fileService;
+
+    public PostImageService(
+            PostImageRepository postImageRepository,
+            @Qualifier("s3FileService") FileService fileService // s3 or local 변환가능
+    ) {
+        this.postImageRepository = postImageRepository;
+        this.fileService = fileService;
+    }
 
     @Transactional
     public PostImage storeFile(MultipartFile file, Post post, int imageOrder) {
