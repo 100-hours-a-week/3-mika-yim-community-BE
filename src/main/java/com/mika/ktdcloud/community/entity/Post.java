@@ -57,26 +57,22 @@ public class Post extends AbstractAuditable {
         if (request.getTitle() != null) this.title = request.getTitle();
         if (request.getContent() != null) this.content = request.getContent();
 
-        // 기존 이미지들 소프트 딜리트
-        for (PostImage oldImage : this.images) {
-            oldImage.softDelete();
-        }
-
         // 메모리상의 컬렉션 비우기
         //    (orphanRemoval=false이므로 DB에서 삭제되지 않음. 안전함.)
         this.images.clear();
 
         // 새로운 이미지들 추가
-        for (PostImage newImage : newImages) {
-            this.addImage(newImage);
+        if (newImages != null) {
+            for (PostImage newImage : newImages) {
+                this.addImage(newImage);
+            }
         }
-
         // 썸네일 재설정
         String newThumbnailUrl = request.getThumbnailUrl(); // DTO에서 요청한 썸네일 URL
         PostImage thumbnail = null;
 
         if (newThumbnailUrl != null && !newThumbnailUrl.isBlank()) {
-            thumbnail = newImages.stream()
+            thumbnail = this.images.stream()
                     .filter(img -> img.getOriginalUrl().equals(newThumbnailUrl))
                     .findFirst()
                     .orElse(null);

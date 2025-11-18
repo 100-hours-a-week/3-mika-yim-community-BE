@@ -10,6 +10,7 @@ import com.mika.ktdcloud.community.entity.PostImage;
 import com.mika.ktdcloud.community.entity.PostLike;
 import com.mika.ktdcloud.community.entity.User;
 import com.mika.ktdcloud.community.mapper.PostMapper;
+import com.mika.ktdcloud.community.repository.PostImageRepository;
 import com.mika.ktdcloud.community.repository.PostLikeRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostImageRepository postImageRepository;
     private final PostViewService postViewService;
     private final PostMapper postMapper;
     private final PostImageService postImageService;
@@ -89,7 +90,6 @@ public class PostService {
     @Transactional
     public PostSimpleResponse updatePost(
             PostUpdateRequest request,
-            List<MultipartFile> imageFiles,
             Long postId,
             Long currentUserId
     ) throws AccessDeniedException {
@@ -100,11 +100,26 @@ public class PostService {
             throw new AccessDeniedException("Only author can update post.");
         }
 
+        // 1. 기존 이미지들 Soft Delete 처리
+        // (연관관계 끊기기 전에 미리 처리하고 저장)
+        List<PostImage> oldImages = post.getImages();
+        if (oldImages != null) {
+            for (PostImage oldImage : oldImages) {
+                oldImage.softDelete();
+            }
+            // [중요] 변경된 상태(deleted=true)를 DB에 확실히 반영하기 위해 saveAll 호출 추천
+            // (JPA Dirty Checking을 믿을 수도 있지만, 리스트에서 제거될 예정이라 명시적 저장이 안전함)
+            postImageRepository.saveAll(oldImages);
+        }
+
+        // 새로 추가된 이미지
+        List<String> newImageUrls = request.getImageUrls();
+        // 기존 이미지 처리
         List<PostImage> newImages = new ArrayList<>();
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            for (int i = 0; i < imageFiles.size(); i++) {
-                // ImageService가 파일을 저장하고, '영속화되지 않은' PostImage 엔티티를 반환
-                PostImage newImage = postImageService.storeFile(imageFiles.get(i), post, i);
+
+        if (newImageUrls != null && !newImageUrls.isEmpty()) {
+            for (int i = 0; i < newImageUrls.size(); i++) {
+                PostImage newImage = postImageService.saveImageUrl(newImageUrls.get(i), post, i);
                 newImages.add(newImage);
             }
         }

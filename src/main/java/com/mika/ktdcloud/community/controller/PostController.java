@@ -31,7 +31,7 @@ public class PostController {
     private final PostService postService;
 
     // 게시글 생성
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping
     public ResponseEntity<PostSimpleResponse> createPost(
             @RequestBody @Valid PostCreateRequest request,
             HttpServletRequest httpServletRequest
@@ -62,12 +62,11 @@ public class PostController {
     @PatchMapping("/{id}")
     public ResponseEntity<PostSimpleResponse> updatePost(
             @PathVariable("id") Long postId,
-            @RequestPart("postData") @Valid PostUpdateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+            @RequestBody @Valid PostUpdateRequest request,
             HttpServletRequest httpServletRequest
     ) throws AccessDeniedException {
         Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
-        PostSimpleResponse response = postService.updatePost(request, imageFiles, postId, currentUserId);
+        PostSimpleResponse response = postService.updatePost(request, postId, currentUserId);
         return ResponseEntity.ok(response);
     }
 
