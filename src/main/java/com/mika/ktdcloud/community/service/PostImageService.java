@@ -20,10 +20,22 @@ public class PostImageService {
 
     public PostImageService(
             PostImageRepository postImageRepository,
-            @Qualifier("s3FileService") FileService fileService // s3 or local 변환가능
+            @Qualifier("s3FileService") FileService fileService // localFileService or s3FileService로 변환가능
     ) {
         this.postImageRepository = postImageRepository;
         this.fileService = fileService;
+    }
+
+    // 람다 함수로 온 s3 url을 DB에 저장
+    @Transactional
+    public PostImage saveImageUrl(String imageUrl, Post post, int imageOrder) {
+        PostImage postImage = PostImage.builder()
+                .originalUrl(imageUrl)
+                .post(post)
+                .imageOrder(imageOrder)
+                .build();
+
+        return postImageRepository.save(postImage);
     }
 
     @Transactional

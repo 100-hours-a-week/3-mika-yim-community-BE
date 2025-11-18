@@ -38,14 +38,18 @@ public class PostService {
 
     // 게시글 생성
     @Transactional
-    public PostSimpleResponse createPost(PostCreateRequest request, List<MultipartFile> imageFiles, Long authorId) {
+    public PostSimpleResponse createPost(PostCreateRequest request, Long authorId) {
         User author = userRepository.getReferenceById(authorId);
         Post newPost = postMapper.toEntity(request, author);
         Post savedPost = postRepository.save(newPost);
 
-        if(imageFiles != null && !imageFiles.isEmpty()) {
-            for (int i=0; i<imageFiles.size(); i++){
-                PostImage savedImage = postImageService.storeFile(imageFiles.get(i), savedPost, i);
+        List<String> imageUrls = request.getImageUrls();
+
+        if(imageUrls != null && !imageUrls.isEmpty()) {
+            for (int i=0; i<imageUrls.size(); i++){
+                String imageUrl = imageUrls.get(i);
+                PostImage savedImage = postImageService.saveImageUrl(imageUrl, savedPost, i);
+
                 savedPost.addImage(savedImage);
             }
         }

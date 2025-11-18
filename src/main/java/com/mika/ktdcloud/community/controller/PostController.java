@@ -33,12 +33,11 @@ public class PostController {
     // 게시글 생성
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostSimpleResponse> createPost(
-            @RequestPart("postData") @Valid PostCreateRequest request,
-            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles,
+            @RequestBody @Valid PostCreateRequest request,
             HttpServletRequest httpServletRequest
     ) {
         Long authorId = SecurityUtil.getCurrentUserId(httpServletRequest);
-        PostSimpleResponse response = postService.createPost(request, imageFiles, authorId);
+        PostSimpleResponse response = postService.createPost(request, authorId);
         URI location = URI.create("/api/v1/posts/" + response.getId());
         return ResponseEntity.created(location).body(response);
     }
