@@ -4,12 +4,16 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 @Entity
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends AbstractAuditable{
+
+    @Value("${aws.cloud-front.url")
+    private String cloud_front_url;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -27,7 +31,7 @@ public class User extends AbstractAuditable{
     @PrePersist
     public void prePersist() {
         if (this.profileImageUrl == null) {
-            this.profileImageUrl = "/images/default-profile-image.png";
+            this.profileImageUrl = "cloud_front_url/public/default/default-profile-image.png";
         }
     }
 
