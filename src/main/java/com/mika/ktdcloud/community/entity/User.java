@@ -1,15 +1,14 @@
 package com.mika.ktdcloud.community.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.*;
 
 @Entity
 @Getter
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class User extends AbstractAuditable{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +23,6 @@ public class User extends AbstractAuditable{
     private String nickname;
     @Column(name = "profile_image_url")
     private String profileImageUrl;
-
-    public static User create(String email, String password, String nickname, String profileImageUrl) {
-        User user = new User();
-        user.email = email;
-        user.password = password;
-        user.nickname = nickname;
-        user.profileImageUrl = profileImageUrl;
-        return user;
-    }
 
     public void updateProfile(String nickname, String profileImageUrl) {
         if (nickname != null && !nickname.equals(this.nickname)) {
