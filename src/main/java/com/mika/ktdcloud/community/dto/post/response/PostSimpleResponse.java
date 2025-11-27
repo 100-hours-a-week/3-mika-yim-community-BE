@@ -10,9 +10,9 @@ public class PostSimpleResponse {
 
     private final Long id;
     private final String title;
-    private final String thumbnailUrl;
+    private String thumbnailUrl;
     private final String authorNickname;
-    private final String authorProfileImageUrl;
+    private String authorProfileImageUrl;
 
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -44,6 +44,15 @@ public class PostSimpleResponse {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+    }
+
+    public void updateUrls(String cloudFrontUrl) {
+        if (this.authorProfileImageUrl != null && !this.authorProfileImageUrl.startsWith("http")) {
+            this.authorProfileImageUrl = cloudFrontUrl + this.authorProfileImageUrl;
+        }
+        if (this.thumbnailUrl != null && !this.thumbnailUrl.startsWith("http")) {
+            this.thumbnailUrl = cloudFrontUrl + this.thumbnailUrl;
+        }
     }
 }
 
