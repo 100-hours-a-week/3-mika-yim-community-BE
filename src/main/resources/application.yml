@@ -34,6 +34,6 @@ app:
 
 aws:
   s3:
-    bucket-name: ${S3_BUCKET_URL}
+    bucket-name: ${S3_BUCKET_NAME}
   cloud-front:
     url: ${CLOUD_FRONT_URL}
