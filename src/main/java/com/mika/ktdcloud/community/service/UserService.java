@@ -8,6 +8,7 @@ import com.mika.ktdcloud.community.entity.User;
 import com.mika.ktdcloud.community.mapper.UserMapper;
 import com.mika.ktdcloud.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    @Value("${aws.cloud-front.url}")
+    private String cloudFrontUrl;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -37,7 +41,7 @@ public class UserService {
 
         String profileImage = request.getProfileImageUrl();
         if (profileImage == null || profileImage.isBlank()) {
-            profileImage = "/public/default/default-profile-image.png";
+            profileImage = cloudFrontUrl + "/public/default/default-profile-image.png";
         }
 
         User user = userMapper.toEntity(request, profileImage, encodedPassword);
