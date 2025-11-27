@@ -22,4 +22,4 @@ networks:
     name: maru-network
   maru-db-network:
     external: true
-    name: maru-network
+    name: maru-db-network
