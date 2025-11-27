@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends AbstractAuditable{
 
-    @Value("${aws.cloud-front.url")
-    private String cloud_front_url;
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
@@ -25,15 +22,8 @@ public class User extends AbstractAuditable{
     private String password;
     @Column(nullable = false, unique = true)
     private String nickname;
-    @Column(name = "profile_image_url", columnDefinition = "VARCHAR(255) DEFAULT 'default_profile_image'")
+    @Column(name = "profile_image_url")
     private String profileImageUrl;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.profileImageUrl == null) {
-            this.profileImageUrl = "cloud_front_url/public/default/default-profile-image.png";
-        }
-    }
 
     public static User create(String email, String password, String nickname, String profileImageUrl) {
         User user = new User();
