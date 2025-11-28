@@ -13,4 +13,4 @@ services:
       - S3_BUCKET_NAME=${S3_BUCKET_NAME}
       - CLOUD_FRONT_URL=${CLOUD_FRONT_URL}
     ports:
-      - "3000:3000"
+      - "8080:8080"
