@@ -30,7 +30,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/api/v1/auth/refresh",
             "/api/v1/auth/logout",
             "/terms",
-            "/backend-assets"
+            "/backend-assets",
+            "/actuator"
     };
 
     @Override

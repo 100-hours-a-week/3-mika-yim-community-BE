@@ -54,6 +54,9 @@ dependencies {
     // AWS S3
     implementation platform('software.amazon.awssdk:bom:2.38.7')
     implementation 'software.amazon.awssdk:s3'
+
+    // Spring Boot Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {

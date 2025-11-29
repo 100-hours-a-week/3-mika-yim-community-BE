@@ -37,3 +37,12 @@ aws:
     bucket-name: ${S3_BUCKET_NAME}
   cloud-front:
     url: ${CLOUD_FRONT_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  endpoint:
+    health:
+      show-details: authorized
