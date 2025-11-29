@@ -30,7 +30,7 @@ jobs:
       - name: Build and Test with Gradle
         run: ./gradlew clean build
   
-  deploy:
+  build-and-push-image:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
@@ -50,17 +50,79 @@ jobs:
           docker build --platform linux/amd64 -t ${{ secrets.DOCKER_USERNAME }}/backend:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
 
+  deploy:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Prepare SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.BASTION_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Check if Docker is installed
+        id: check-docker
+        run: |
+          DOCKER_EXISTS=$(ssh -o StrictHostKeyChecking=no \
+              -i ~/.ssh/id_rsa \
+              -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_PRIVATE_IP }} 'command -v docker >/dev/null && echo "true" || echo "false"')
+          echo "docker_exists=$DOCKER_EXISTS" >> $GITHUB_OUTPUT
+
+      - name: Install Docker on EC2
+        if: steps.check-docker.outputs.docker_exists == 'false'
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -i ~/.ssh/id_rsa \
+              -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_PRIVATE_IP }} << 'EOF'
+            sudo apt-get update
+            sudo apt-get install -y \
+              ca-certificates \
+              curl \
+              gnupg \
+              lsb-release
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+              | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            echo \
+              "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+              https://download.docker.com/linux/ubuntu \
+              $(lsb_release -cs) stable" \
+              | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+            sudo usermod -aG docker $USER
+          EOF
+
+      - name: Copy Configuration files to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+              -i ~/.ssh/id_rsa \
+              -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_PRIVATE_IP }} \
+              "mkdir -p /home/${{ secrets.SERVER_USER }}/backend"
+          
+          scp -o StrictHostKeyChecking=no \
+              -o ProxyCommand="ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -W %h:%p ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }}" \
+              -i ~/.ssh/id_rsa \
+              docker-compose.yml \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_PRIVATE_IP }}:/home/${{ secrets.SERVER_USER }}/backend/
 
       - name: Deploy to EC2
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash -s' << 'EOF'
+          ssh -o StrictHostKeyChecking=no \
+              -i ~/.ssh/id_rsa \
+              -J ${{ secrets.BASTION_USER }}@${{ secrets.BASTION_HOST }} \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_PRIVATE_IP }} << 'EOF'
+              
             set -e
+            sudo chmod 666 /var/run/docker.sock
             cd /home/${{ secrets.SERVER_USER }}/backend
 
             echo "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}" > .env
@@ -75,5 +137,6 @@ jobs:
 
             docker compose pull backend
             docker compose up -d backend
-          EOF
 
+            docker image prune -f
+          EOF
