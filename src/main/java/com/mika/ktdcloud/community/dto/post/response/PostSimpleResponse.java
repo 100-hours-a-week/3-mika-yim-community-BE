@@ -3,7 +3,7 @@ package com.mika.ktdcloud.community.dto.post.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class PostSimpleResponse {
@@ -14,8 +14,8 @@ public class PostSimpleResponse {
     private final String authorNickname;
     private String authorProfileImageUrl;
 
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 
     private final Integer viewCount;
     private final Integer likeCount;
@@ -28,8 +28,8 @@ public class PostSimpleResponse {
             String thumbnailUrl,
             String authorNickname,
             String authorProfileImageUrl,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
+            Instant createdAt,
+            Instant updatedAt,
             Integer viewCount,
             Integer likeCount,
             Integer commentCount
