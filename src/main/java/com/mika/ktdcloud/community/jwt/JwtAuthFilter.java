@@ -25,17 +25,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // 필터 제외 경로 목록
     private static final String[] EXCLUDED_PATHS = {
+            "/api/v1/terms",
             "/api/v1/users/signup",
             "/api/v1/auth/login",
             "/api/v1/auth/refresh",
-            "/api/v1/auth/logout",
-            "/api/v1/terms"
+            "/api/v1/auth/logout"
     };
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return Arrays.stream(EXCLUDED_PATHS).anyMatch(path::startsWith);
+        boolean shouldSkip = Arrays.stream(EXCLUDED_PATHS).anyMatch(path::startsWith);
+        System.out.println("[DEBUG] Incoming Path: " + path + ", Should Skip: " + shouldSkip);
+        return shouldSkip;
     }
 
     @Override
@@ -50,9 +52,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        String path = request.getRequestURI();
+
         Optional<String> token = extractTokenFromHeader(request);
 
         if (token.isEmpty()) {
+            System.out.println("[DEBUG] 401 Error (No Token) for Path: " + path);
+
             response.setHeader("Access-Control-Allow-Origin", webServerUrl);
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
@@ -62,6 +68,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (!validateAndSetAttributes(token.get(), request)) {
+            System.out.println("[DEBUG] 401 Error (No Token) for Path: " + path);
+
             response.setHeader("Access-Control-Allow-Origin", webServerUrl);
             response.setHeader("Access-Control-Allow-Credentials", "true");
 
