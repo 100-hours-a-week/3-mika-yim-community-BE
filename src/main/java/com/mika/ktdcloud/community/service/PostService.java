@@ -44,6 +44,10 @@ public class PostService {
         Post newPost = postMapper.toEntity(request, author);
         Post savedPost = postRepository.save(newPost);
 
+        if (request.getImageUrls() != null && request.getImageUrls().size() > 3) {
+            throw new IllegalArgumentException("이미지는 최대 3장까지 첨부할 수 있습니다.");
+        }
+
         List<String> imageUrls = request.getImageUrls();
 
         if(imageUrls != null && !imageUrls.isEmpty()) {
@@ -100,15 +104,15 @@ public class PostService {
             throw new AccessDeniedException("Only author can update post.");
         }
 
-        // 1. 기존 이미지들 Soft Delete 처리
-        // (연관관계 끊기기 전에 미리 처리하고 저장)
+        if (request.getImageUrls() != null && request.getImageUrls().size() > 3) {
+            throw new IllegalArgumentException("이미지는 최대 3장까지 첨부할 수 있습니다.");
+        }
+
         List<PostImage> oldImages = post.getImages();
         if (oldImages != null) {
             for (PostImage oldImage : oldImages) {
                 oldImage.softDelete();
             }
-            // [중요] 변경된 상태(deleted=true)를 DB에 확실히 반영하기 위해 saveAll 호출 추천
-            // (JPA Dirty Checking을 믿을 수도 있지만, 리스트에서 제거될 예정이라 명시적 저장이 안전함)
             postImageRepository.saveAll(oldImages);
         }
 
