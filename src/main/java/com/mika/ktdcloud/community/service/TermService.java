@@ -65,27 +65,8 @@ public class TermService {
                 부칙 이 개인정보 처리방침은 2025년 10월 20일부터 적용됩니다.
                 """;
 
-        String marketingOptInContent = """
-                마케팅 정보 수신 동의 (선택)
-                제1조 (수집 및 이용 목적) '대청마루'는 회원의 동의를 받아 아래와 같은 목적을 위해 마케팅 정보를 발송합니다.
-                - 신규 서비스 또는 기능 업데이트 안내
-                - 이벤트, 할인 쿠폰, 프로모션 등 광고성 정보 제공
-                - 기타 서비스 이용과 관련된 유용한 정보 제공
-                
-                제2조 (수집 항목) 마케팅 정보 발송을 위해 아래와 같은 회원 정보를 활용합니다.
-                - 이메일 주소, 닉네임
-                
-                제3조 (보유 및 이용기간)
-                - 동의 철회 또는 회원 탈퇴 시까지 보관 및 이용됩니다.
-                
-                제4조 (동의 거부에 관한 안내) 귀하는 본 마케팅 정보 수신에 동의하지 않을 권리가 있으며, 동의하지 않으셔도 '대청마루'의 모든 서비스를 정상적으로 이용하실 수 있습니다.
-                
-                동의하신 이후에도 언제든지 '회원정보 수정' 페이지 또는 고객센터를 통해 동의를 철회할 수 있습니다.
-                """;
-
-        termList.add(new TermDTO(1L, "(필수) 이용약관 동의", termsOfUseContent, true));
-        termList.add(new TermDTO(2L, "(필수) 개인정보처리방침 동의", privacyPolicyContent, true));
-        termList.add(new TermDTO(3L, "(선택) 마케팅정보수신 동의", marketingOptInContent, false));
+        termList.add(new TermDTO(1L, "이용약관 동의", termsOfUseContent, true));
+        termList.add(new TermDTO(2L, "개인정보처리방침 동의", privacyPolicyContent, true));
     }
 
     public List<TermDTO> findAllTerms() {
