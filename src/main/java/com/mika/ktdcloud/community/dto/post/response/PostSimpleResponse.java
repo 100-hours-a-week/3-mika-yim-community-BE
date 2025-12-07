@@ -3,19 +3,19 @@ package com.mika.ktdcloud.community.dto.post.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class PostSimpleResponse {
 
     private final Long id;
     private final String title;
-    private final String thumbnailUrl;
+    private String thumbnailUrl;
     private final String authorNickname;
-    private final String authorProfileImageUrl;
+    private String authorProfileImageUrl;
 
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 
     private final Integer viewCount;
     private final Integer likeCount;
@@ -28,8 +28,8 @@ public class PostSimpleResponse {
             String thumbnailUrl,
             String authorNickname,
             String authorProfileImageUrl,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
+            Instant createdAt,
+            Instant updatedAt,
             Integer viewCount,
             Integer likeCount,
             Integer commentCount
@@ -44,6 +44,15 @@ public class PostSimpleResponse {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+    }
+
+    public void updateUrls(String cloudFrontUrl) {
+        if (this.authorProfileImageUrl != null && !this.authorProfileImageUrl.startsWith("http")) {
+            this.authorProfileImageUrl = cloudFrontUrl + this.authorProfileImageUrl;
+        }
+        if (this.thumbnailUrl != null && !this.thumbnailUrl.startsWith("http")) {
+            this.thumbnailUrl = cloudFrontUrl + this.thumbnailUrl;
+        }
     }
 }
 

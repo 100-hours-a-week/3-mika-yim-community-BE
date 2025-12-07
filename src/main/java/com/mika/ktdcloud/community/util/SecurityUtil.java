@@ -1,25 +1,38 @@
 package com.mika.ktdcloud.community.util;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Optional;
 
 public class SecurityUtil {
 
     private SecurityUtil() {}
 
-    public static Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public static Long getCurrentUserId(HttpServletRequest request) {
+        Object userIdAttribute = request.getAttribute("userId");
+        if (userIdAttribute == null) {
+            throw new IllegalStateException("Request에서 사용자 ID를 찾을 수 없습니다.");
+        }
+        return (Long) userIdAttribute;
+    }
 
-        // SecurityContextHolder에서 현재 인증된 사용자의 ID를 가져옴
-        if (authentication == null || authentication.getName() == null
-                || "anonymousUser".equals(authentication.getName())) {
-            throw new IllegalStateException("인증된 사용자 정보를 찾을 수 없습니다.");
+    public static Optional<Long> findCurrentUserId() {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        // 애플리케이션 시작 시점 엔티티 저장 혹은 웹 요청 컨텍스트 외부이거나 요청 속성이 없을 경우 empty 반환
+        if (attr == null) {
+            return Optional.empty();
         }
 
-        try{
-            return Long.parseLong(authentication.getName());
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("인증된 정보에서 사용자 ID를 가져올 수 없습니다.");
+        HttpServletRequest request = attr.getRequest();
+        Object userIdAttribute = request.getAttribute("userId");
+
+        if (userIdAttribute instanceof Long) {
+            return Optional.of((Long) userIdAttribute);
+        } else {
+            return Optional.empty(); // 인증이 없어도 예외를 발생하지 않음
         }
     }
 }

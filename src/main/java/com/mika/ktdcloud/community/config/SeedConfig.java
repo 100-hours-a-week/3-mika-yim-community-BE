@@ -35,7 +35,12 @@ public class SeedConfig {
 
         IntStream.rangeClosed(1, 100).forEach(i -> {
             String encodedPassword = passwordEncoder.encode("Pass1234!"+i);
-            User user = User.create("tester"+i+"@example.kr", encodedPassword, "tester"+i, null);
+            User user = User.builder()
+                    .email("tester"+i+"@example.kr")
+                    .password(encodedPassword)
+                    .nickname("tester"+i)
+                    .profileImageUrl(null)
+                    .build();
             userRepository.save(user);
 
             PostCreateRequest postCreateRequest = PostCreateRequest.builder()

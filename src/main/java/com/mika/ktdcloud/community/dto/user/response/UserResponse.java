@@ -3,7 +3,7 @@ package com.mika.ktdcloud.community.dto.user.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class UserResponse {
@@ -13,9 +13,9 @@ public class UserResponse {
     private final String nickname;
     private final String profileImageUrl;
 
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
-    private final LocalDateTime deletedAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
+    private final Instant deletedAt;
 
     @Builder
     public UserResponse(
@@ -23,9 +23,9 @@ public class UserResponse {
             String email,
             String nickname,
             String profileImageUrl,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            LocalDateTime deletedAt
+            Instant createdAt,
+            Instant updatedAt,
+            Instant deletedAt
         ) {
         this.id = id;
         this.email = email;

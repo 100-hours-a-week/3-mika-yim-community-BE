@@ -3,7 +3,7 @@ package com.mika.ktdcloud.community.dto.comment.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 public class CommentResponse {
@@ -14,9 +14,9 @@ public class CommentResponse {
     private final String authorNickname;
     private final String authorProfileImageUrl;
 
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
-    private final LocalDateTime deletedAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
+    private final Instant deletedAt;
 
     private final boolean isAuthor;
 
@@ -27,9 +27,9 @@ public class CommentResponse {
             Long postId,
             String authorNickname,
             String authorProfileImageUrl,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            LocalDateTime deletedAt,
+            Instant createdAt,
+            Instant updatedAt,
+            Instant deletedAt,
             boolean isAuthor
     ) {
         this.id = id;
