@@ -4,6 +4,12 @@
 > 
 > **대청마루** 커뮤니티 서비스의 백엔드 레포지토리입니다.
 
+[![Java](https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Docker](https://img.shields.io/badge/Docker-24.x-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![AWS](https://img.shields.io/badge/AWS-S3%20%7C%20CodeDeploy-232F3E?style=flat-square&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+
 ## 📖 프로젝트 소개
 
 **대청마루**는 사용자들이 자유롭게 소통할 수 있는 커뮤니티 서비스의 백엔드 API 서버입니다.
@@ -16,7 +22,7 @@
 
 * **Language:** Java 21
 * **Framework:** Spring Boot 3.x
-* **Database:** AWS RDS, Spring Data JPA
+* **Database:** MySQL 8.0, Spring Data JPA
 * **Infrastructure:** Docker, Docker Compose
 * **CI/CD:** GitHub Actions, AWS CodeDeploy, AWS S3
 
