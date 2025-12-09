@@ -6,6 +6,7 @@ import com.mika.ktdcloud.community.dto.user.request.UserUpdateRequest;
 import com.mika.ktdcloud.community.dto.user.response.UserResponse;
 import com.mika.ktdcloud.community.service.UserService;
 import com.mika.ktdcloud.community.util.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,16 +37,19 @@ public class UserController {
 
     // 현재 사용자 정보 조회
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMyProfile() {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+    public ResponseEntity<UserResponse> getMyProfile(HttpServletRequest httpServletRequest) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         UserResponse response = userService.getUser(currentUserId);
         return ResponseEntity.ok(response);
     }
 
     // 현재 사용자 회원 수정
     @PatchMapping("/me")
-    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody @Valid UserUpdateRequest request) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+    public ResponseEntity<UserResponse> updateMyProfile(
+            @RequestBody @Valid UserUpdateRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         UserResponse response = userService.updateUser(currentUserId, request);
         return ResponseEntity.ok(response);
     }
@@ -59,8 +63,11 @@ public class UserController {
 
     // 현재 사용자 비밀번호 변경
     @PatchMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordUpdateRequest request) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+    public ResponseEntity<Void> updatePassword(
+            @RequestBody @Valid UserPasswordUpdateRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         userService.updatePasswordUser(currentUserId, request);
         return ResponseEntity.ok().build();
     }
@@ -74,8 +81,8 @@ public class UserController {
 
     // 현재 회원 삭제
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteCurrentUser() {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+    public ResponseEntity<Void> deleteCurrentUser(HttpServletRequest httpServletRequest) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         userService.deleteUser(currentUserId);
         // 서비스의 delete(id)를 호출해 해당 유저의 soft delete를 진행한다.
         return ResponseEntity.noContent().build();

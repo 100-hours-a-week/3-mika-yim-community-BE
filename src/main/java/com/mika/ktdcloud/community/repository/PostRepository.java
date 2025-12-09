@@ -14,11 +14,10 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
-    // fetch join으로 N+1 방지, LEFT JOIN으로 null 값이 있어도 가져옴
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.images WHERE p.id = :id")
     Optional<Post> findByIdWithImages(@Param("id") Long id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE) // 동시성 문제를 위한 pessimistic lock(비관적 락, 배타적 잠금)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Post> findWithLockById(Long id);
 
     List<Post> findAllByAuthorId(Long authorId);

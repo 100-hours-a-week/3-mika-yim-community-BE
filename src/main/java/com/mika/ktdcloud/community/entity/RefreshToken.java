@@ -1,9 +1,9 @@
 package com.mika.ktdcloud.community.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.Instant;
 
 @Entity
 @Getter
@@ -15,21 +15,27 @@ public class RefreshToken {
     @Column(name = "refresh_token_id")
     private Long id;
 
-    // User와 일대일 관계
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false, unique = true)
-    private String tokenValue; // 실제 Refresh Token 값
+    private String tokenValue; // Refresh Token 값
 
-    public RefreshToken(User user, String tokenValue) {
+    @Column(nullable = false)
+    private Instant expiresAt;
+
+    private boolean revoked = false;
+
+    public RefreshToken(User user, String tokenValue, Instant expiresAt, boolean revoked) {
         this.user = user;
         this.tokenValue = tokenValue;
+        this.expiresAt = expiresAt;
+        this.revoked = revoked;
     }
 
-    // refresh 토큰 값 업데이트 메서드
-    public void updateTokenValue(String tokenValue) {
-        this.tokenValue = tokenValue;
+    // 토큰 무효화
+    public void revoke() {
+        this.revoked = true;
     }
 }

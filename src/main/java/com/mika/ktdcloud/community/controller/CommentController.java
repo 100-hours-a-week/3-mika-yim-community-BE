@@ -5,6 +5,7 @@ import com.mika.ktdcloud.community.dto.comment.request.CommentUpdateRequest;
 import com.mika.ktdcloud.community.dto.comment.response.CommentResponse;
 import com.mika.ktdcloud.community.service.CommentService;
 import com.mika.ktdcloud.community.util.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,8 +28,10 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
-            @RequestBody @Valid CommentCreateRequest request) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+            @RequestBody @Valid CommentCreateRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         CommentResponse response = commentService.createComment(request, postId, currentUserId);
         URI location = URI.create("/api/v1/post/" + postId + "/comments" + response.getId());
         return ResponseEntity.created(location).body(response);
@@ -38,8 +41,10 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<Slice<CommentResponse>> getComments(
             @PathVariable Long postId,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         Slice<CommentResponse> comments = commentService.getComment(postId, currentUserId, pageable);
         return ResponseEntity.ok(comments);
     }
@@ -48,18 +53,18 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentUpdateRequest request
-            // 인증 인가 추가 후 현재 사용자 정보 가져오기
+            @RequestBody @Valid CommentUpdateRequest request,
+            HttpServletRequest httpServletRequest
             ) throws AccessDeniedException {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Long currentUserId = SecurityUtil.getCurrentUserId(httpServletRequest);
         CommentResponse response = commentService.updateComment(request, commentId, currentUserId);
         return ResponseEntity.ok(response);
     }
 
     // 댓글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id) throws AccessDeniedException {
-        Long authorId = SecurityUtil.getCurrentUserId();
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, HttpServletRequest httpServletRequest) throws AccessDeniedException {
+        Long authorId = SecurityUtil.getCurrentUserId(httpServletRequest);
         commentService.deleteComment(id, authorId);
         return ResponseEntity.noContent().build();
     }

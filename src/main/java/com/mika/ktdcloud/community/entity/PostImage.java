@@ -2,6 +2,7 @@ package com.mika.ktdcloud.community.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,28 +16,41 @@ public class PostImage extends AbstractAuditable{
     @Column(name = "post_image_id")
     private Long id;
 
-    @Column(nullable = false)
-    private String imageUrl;
-    @Column(nullable = false)
-    private Integer imageOrder;
-    @Column(name = "is_representative", nullable = false)
-    private boolean isRepresentative;
-
-    // 양방향 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    public static PostImage create(String imageUrl, Integer imageOrder, boolean isRepresentative) {
-        PostImage postImage = new PostImage();
-        postImage.imageUrl = imageUrl;
-        postImage.imageOrder = imageOrder;
-        postImage.isRepresentative = isRepresentative;
-        return postImage;
+    @Column(nullable = false)
+    private String originalUrl;
+
+    @Column(nullable = false)
+    private Integer imageOrder;
+
+    @Column(name = "is_representative", nullable = false)
+    private boolean isRepresentative = false;
+
+    @Builder
+    public PostImage(Post post, String originalUrl, Integer imageOrder) {
+        this.post = post;
+        this.originalUrl = originalUrl;
+        this.imageOrder = imageOrder;
+        this.isRepresentative = false;
     }
 
-    // Post의 addImage()를 통해서만 호출되도록 protected로 제한
     protected void setPost(Post post) {
-        this.post = post; // post_id 저장
+        this.post = post;
+    }
+
+    protected void setRepresentative(boolean isRepresentative) {
+        this.isRepresentative = isRepresentative;
+    }
+
+    public void updateImageUrl(String imageUrl) {
+        this.originalUrl = imageUrl;
+    }
+
+    @Override
+    public void softDelete() {
+        super.softDelete();
     }
 }

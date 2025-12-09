@@ -9,7 +9,9 @@ import com.mika.ktdcloud.community.entity.User;
 import com.mika.ktdcloud.community.mapper.CommentMapper;
 import com.mika.ktdcloud.community.repository.CommentRepository;
 import com.mika.ktdcloud.community.repository.PostRepository;
+import com.mika.ktdcloud.community.repository.PostStatRepository;
 import com.mika.ktdcloud.community.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,6 +28,8 @@ public class CommentService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final PostStatRepository postStatRepository; // PostStatRepository 주입
+    private final EntityManager entityManager;
 
     // 댓글 생성
     @Transactional
@@ -37,6 +41,8 @@ public class CommentService {
         Comment savedComment = commentRepository.save(newComment);
 
         post.getStat().increaseCommentCount();
+        postStatRepository.save(post.getStat()); // 변경된 PostStat을 명시적으로 저장
+
         return commentMapper.toResponse(savedComment, true);
     }
 
@@ -65,7 +71,7 @@ public class CommentService {
     // 댓글 삭제
     @Transactional
     public void deleteComment(Long id, Long currentUserId) throws AccessDeniedException {
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository.findByCommentAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new IllegalArgumentException("comment not found."));
 
         if (!comment.getAuthor().getId().equals(currentUserId)) {
@@ -76,7 +82,14 @@ public class CommentService {
         Post post = postRepository.findWithLockById(postId)
                         .orElseThrow(() -> new IllegalArgumentException("Post not found."));
 
+        entityManager.refresh(comment);
+
+        if (comment.getDeletedAt() != null) {
+            return;
+        }
+
         comment.softDelete();
         post.getStat().decreaseCommentCount();
+        postStatRepository.save(post.getStat()); // 변경된 PostStat을 명시적으로 저장
     }
 }

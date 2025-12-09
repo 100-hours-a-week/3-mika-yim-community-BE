@@ -1,0 +1,16 @@
+services:
+  backend:
+    image: michael568/backend:latest
+    container_name: backend
+    restart: always
+    env_file: .env
+    environment:
+      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_URL=${MYSQL_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DOMAIN_URL=${DOMAIN_URL}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - CLOUD_FRONT_URL=${CLOUD_FRONT_URL}
+    ports:
+      - "8080:8080"
