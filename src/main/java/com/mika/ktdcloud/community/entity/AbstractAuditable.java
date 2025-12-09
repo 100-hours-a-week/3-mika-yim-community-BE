@@ -15,8 +15,7 @@ import java.time.Instant;
 @EntityListeners(AuditingEntityListener.class)
 // 엔티티의 라이프사이클 이벤트를 감지해 특정 동작을 수행하도록 연결
 // Spring Data JPA가 제공하는 리스너로, 엔티티가 저장이나 수정될 때 자동으로 값을 채워줌
-@MappedSuperclass
-// 이 클래스를 상속받는 엔티티는, 상속받은 필드가 마치 자신의 엔티티 필드처럼 컬럼으로 매핑됨
+@MappedSuperclass // 이 클래스를 상속받는 엔티티는, 상속받은 필드가 마치 자신의 엔티티 필드처럼 컬럼으로 매핑됨
 @Getter
 public class AbstractAuditable {
 

@@ -1,6 +1,5 @@
 package com.mika.ktdcloud.community.mapper;
 
-import com.mika.ktdcloud.community.dto.comment.response.CommentResponse;
 import com.mika.ktdcloud.community.dto.post.request.PostCreateRequest;
 import com.mika.ktdcloud.community.dto.post.response.PostDetailResponse;
 import com.mika.ktdcloud.community.dto.post.response.PostLikeResponse;

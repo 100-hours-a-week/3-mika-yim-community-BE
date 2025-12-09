@@ -14,14 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.nio.file.AccessDeniedException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -45,7 +42,7 @@ public class PostController {
     // 게시글 목록 조회 (무한 스크롤링)
     @GetMapping
     public ResponseEntity<Slice<PostSimpleResponse>> getPostList(
-            @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostSimpleResponse> responseSlice = postService.getPostList(pageable);
         return ResponseEntity.ok(responseSlice);
     }

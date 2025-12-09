@@ -4,7 +4,6 @@ import com.mika.ktdcloud.community.entity.Post;
 import com.mika.ktdcloud.community.entity.PostImage;
 import com.mika.ktdcloud.community.repository.PostImageRepository;
 import com.mika.ktdcloud.community.service.file.FileService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

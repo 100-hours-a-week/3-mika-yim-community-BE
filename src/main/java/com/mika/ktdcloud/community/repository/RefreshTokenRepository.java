@@ -1,7 +1,6 @@
 package com.mika.ktdcloud.community.repository;
 
 import com.mika.ktdcloud.community.entity.RefreshToken;
-import com.mika.ktdcloud.community.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
