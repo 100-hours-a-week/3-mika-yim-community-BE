@@ -58,6 +58,24 @@ GitHub Actions와 AWS CodeDeploy를 통해 자동화된 배포 파이프라인�
 3. **Dockerizing**: `Dockerfile`의 Multi-stage build를 통해 최적화된 이미지를 생성하고 Docker Hub에 푸시합니다.
 4. **Deploy**: 배포 스크립트와 설정 파일을 AWS S3로 전송하고, AWS CodeDeploy를 트리거하여 EC2 인스턴스에 배포합니다.
 
-## 🏗️ 아키텍처 설계
+## ☁️ 인프라 아키텍처 (Infrastructure Architecture)
 
-<img src="./images/architecture.jpg", height="100x", width="100px">
+<img src="./images/architecture.jpg" width="500px" height="607.59px" alt="아키텍처 설계도">
+
+대청마루 서비스는 AWS 클라우드 환경에서 **보안(Security)**과 **가용성(Availability)**을 최우선으로 고려하여 설계되었습니다. VPC(Virtual Private Cloud)를 기반으로 네트워크 영역을 철저히 분리하였으며, 정적 리소스와 동적 요청을 효율적으로 처리하기 위해 하이브리드 아키텍처를 채택했습니다.
+
+🏛 아키텍처 구성 요소 및 특징
+* 네트워크 및 보안 (VPC & Network Security)
+  * VPC (Virtual Private Cloud): 논리적으로 격리된 가상 네트워크 환경을 구성하여 외부의 무분별한 접근을 차단합니다.
+  * Subnet 분리 (Public vs Private):
+    * Public Subnet: 외부 인터넷과 직접 통신이 가능한 영역으로, 로드밸런서(ALB)와 NAT 인스턴스, Bastion Host(관리용)가 위치합니다.
+    * Private Subnet: 외부에서 직접 접근할 수 없는 보안 영역입니다. 핵심 애플리케이션 서버(WAS)와 데이터베이스(RDS)를 배치하여 데이터 유출 및 해킹 위협을 최소화했습니다.
+    * NAT Instance: Private Subnet에 위치한 서버들이 OS 업데이트나 외부 API 호출을 할 수 있도록, 아웃바운드 트래픽만을 허용하는 NAT 인스턴스를 구성했습니다.
+* 트래픽 분산 및 부하 관리 (Load Balancing)
+  * ALB (Application Load Balancer): 사용자로부터 들어오는 트래픽을 받아 뒷단의 Web Server(WS) 및 Web Application Server(WAS)로 균등하게 분산시킵니다. L7 계층에서 동작하며, SSL/TLS 인증서를 통한 HTTPS 암호화 통신을 지원합니다.
+* 애플리케이션 및 데이터 (Compute & Database)
+  * WS / WAS 계층 분리: 정적 처리를 담당하는 Web Server와 비즈니스 로직을 수행하는 WAS(Spring Boot)를 Private Subnet에 배치하여 보안을 강화했습니다.
+  * Amazon RDS: 관계형 데이터베이스(MySQL)를 Private Subnet 최하단에 배치하여 외부 접근을 원천 차단하고, 안정적인 데이터 저장을 보장합니다.
+* 정적 리소스 및 서버리스 (Static Content & Serverless)
+  * CloudFront & S3: 이미지 파일은 S3에 저장하고, CloudFront(CDN)를 통해 캐싱하여 제공합니다. 이를 통해 서버 부하를 줄이고 사용자에게 빠른 응답 속도를 제공합니다.
+  * API Gateway & Lambda: 이미지 리사이징이나 단순 업로드와 같은 기능은 서버리스 아키텍처(Lambda)를 활용하여 메인 서버의 리소스를 점유하지 않고 효율적으로 처리합니다.
