@@ -57,3 +57,7 @@ GitHub Actions와 AWS CodeDeploy를 통해 자동화된 배포 파이프라인�
 2. **Test**: Gradle을 사용하여 프로젝트를 빌드하고 테스트를 수행합니다.
 3. **Dockerizing**: `Dockerfile`의 Multi-stage build를 통해 최적화된 이미지를 생성하고 Docker Hub에 푸시합니다.
 4. **Deploy**: 배포 스크립트와 설정 파일을 AWS S3로 전송하고, AWS CodeDeploy를 트리거하여 EC2 인스턴스에 배포합니다.
+
+## 🏗️ 아키텍처 설계
+
+<img src="./images/architecture.jpg", height="100x", width="100px">
